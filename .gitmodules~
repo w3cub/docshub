@@ -1,3 +1,0 @@
-[submodule "devdocs"]
-	path = devdocs
-	url = git@github.com:Thibaut/devdocs.git
