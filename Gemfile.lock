@@ -1,0 +1,17 @@
+GEM
+  remote: https://ruby.taobao.org/
+  specs:
+    mini_portile2 (2.0.0)
+    nokogiri (1.6.7)
+      mini_portile2 (~> 2.0.0.rc2)
+    rake (10.4.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  nokogiri
+  rake (~> 10.0)
+
+BUNDLED WITH
+   1.10.6
