@@ -1,3 +1,8 @@
 [submodule "devdocs"]
 	path = devdocs
 	url = git@github.com:Thibaut/devdocs.git
+
+[submodule "website"]
+	path = website
+	url = git@github.com:icai/docshub.git
+	branch = source
