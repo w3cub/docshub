@@ -1,6 +1,7 @@
 [submodule "devdocs"]
 	path = devdocs
-	url = git@github.com:Thibaut/devdocs.git
+	url = git@github.com:icai/devdocs.git
+	branch = master
 
 [submodule "website"]
 	path = website
