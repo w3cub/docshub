@@ -6,3 +6,7 @@
 	path = website
 	url = git@github.com:icai/docshub.git
 	branch = source
+[submodule "docslogo"]
+	path = docslogo
+	url = git@github.com:icai/tech-logo.git
+	branch = master
