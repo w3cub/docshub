@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require 'find'
 require 'fileutils'
 require 'json'
@@ -6,7 +8,7 @@ require 'logger'
 
 
 $debug = false
-$docs = JSON.parse( IO.read("website/source/_data/docs.json"))
+$docs = nil
 
 devdocs_path = "devdocs"
 website_path = "website"
@@ -20,16 +22,12 @@ image_target_path = "#{website_path}/source/images/"
 docs_generate_target = "#{website_path}/.docs-cache/"
 docs_target_path = "#{website_path}/source/_docs/"
 json_target_path = "#{website_path}/source/_data/"
-menu_target_path = "#{website_path}/source/data/"
 json_js_target_path = "#{website_path}/source/json/"
 
-# my_dir = Dir["#{dir}/**/*.html"]
-# my_dir.each do |filename|
-#   name = File.basename(filename, ".html")
-#   dirpath = File.dirname(filename)
-#   dest_folder = "#{target}#{dirpath}/"
-#   FileUtils.cp(filename, dest_folder)
-# end
+credits_path = "#{devdocs_path}/assets/javascripts/templates/pages/about_tmpl.coffee"
+credits_regex = /credits\s*=\s*(\[[\s\S]*\])/
+
+
 def del_target(target)
   if Dir[target] != nil
     FileUtils.rm_rf(target)
@@ -37,7 +35,7 @@ def del_target(target)
 end
 
 def get_type(slug)
-  docs = $docs
+  docs = $docs || ($docs = JSON.parse( IO.read("website/source/_data/docs.json")))
   item = docs.select{ |item| item["slug"] == slug }
   item[0] && item[0]["type"]
 end
@@ -78,7 +76,6 @@ def fix_doc_link(html, path)
   robj
 end
 
-
 def handle_file(target)
   # handle file
   slug = /docs-cache\/(\w+)/.match(target)[1] # doc name
@@ -110,18 +107,26 @@ def handle_file(target)
 end
 
 def generate_html(source_path, target_path)
-  Find.find(source_path) do |source|
-    if File.directory?(source)
-      # Find.prune if File.basename(source) == '.svn'
-    else
-      Find.prune unless /\.html$/ =~ File.basename(source) # filter html only
+  Dir.glob(source_path + "**/*.html") do |source|
       target = source.sub(/^#{source_path}/, target_path)
       FileUtils.mkdir_p(File.dirname(target))
       FileUtils.copy(source, target)
       puts "handle: " + target
       handle_file(target)
-    end
   end
+  # Find.find(source_path) do |source|
+  #   if File.directory?(source)
+  #     # Find.prune if File.basename(source) == '.svn'
+  #   else
+  #     Find.prune unless /\.html$/ =~ File.basename(source) # filter html only
+
+  #     target = source.sub(/^#{source_path}/, target_path)
+  #     FileUtils.mkdir_p(File.dirname(target))
+  #     FileUtils.copy(source, target)
+  #     puts "handle: " + target
+  #     handle_file(target)
+  #   end
+  # end
 end
 
 def copy_html(source_path, target_path, debug=true)
@@ -143,75 +148,20 @@ def copy_html(source_path, target_path, debug=true)
   end
 end
 
-def copy_json(source_path, target_path, filter=nil, handle_file=nil)
-  Find.find(source_path) do |source|
-    if File.directory?(source)
-      Find.prune if File.basename(source) == '.svn'
-      #FileUtils.mkdir(target) unless File.exists?(target)
-    else
-      if filter != nil
-        Find.prune unless filter.call(File.basename(source), source)
-      else
-        Find.prune unless  /(index|docs)\.json$/ =~ File.basename(source) # filter json only
-      end
+def copy_json(source_path, target_path, handle_file=nil)
+    Dir.glob(source_path + "*/index.json") do |source|
       target = source.sub(/^#{source_path}/, target_path)
       target = target.sub(/(\w+)\/index/, '\1')
       FileUtils.mkdir_p(File.dirname(target))
       FileUtils.copy(source, target)
       handle_file && handle_file.call(target)
     end
-  end
 end
 
 def get_child_path(path)
   Dir.glob(path + "*")
 end
 
-
-
-desc "generate docs html"
-task :generate_html do |t, args|
-  del_target(docs_generate_target)
-  generate_html(docs_path, docs_generate_target)
-end
-
-
-desc "copy docs html to website"
-task :copy_html, :debug do |t, args|
-  args.with_defaults(:debug=> true)
-  debug = args[:debug]
-
-  del_target(docs_target_path)
-  if ["true", "false", true, false].include? debug
-    copy_html(docs_generate_target, docs_target_path, debug == "true")
-  else
-    if debug.is_a?(String) && debug.match(/(\w+\|?)*?/)
-      debug = debug.split("|")
-      copy_html(docs_generate_target, docs_target_path, debug)
-    end
-  end
-end
-
-
-desc "Generate html and copy"
-task :gen_copy => [:generate_html, :copy_html] do
-end
-
-def json_filter2(basename, source)
-  /(docs)\.json$/ =~ basename
-end
-
-desc "copy docs json to website"
-task :copy_index_json do
-  del_target(json_target_path)
-  copy_json(docs_path, json_target_path, method(:json_filter2))
-end
-
-def json_filter(basename, source)
-  /(index)\.json$/ =~ basename
-end
-
-# $logger = Logger.new('json.log')
 
 def json_handle(target)
   file = JSON.parse(IO.read(target))
@@ -244,24 +194,79 @@ def json_handle(target)
   File.rename(target, File.dirname(target) + '/' + File.basename(target, '.json') + '.js')
 end
 
-desc "use alone javascript `menuJson` Object replace the orgin json"
+
+def copy_credits(path, regex, target)
+  file = IO.read(path)
+  credits_data = regex.match(file)[1]
+  data = JSON.parse(eval(credits_data.to_s).to_json)
+  IO.write(target + "credits.json", data)
+end
+
+
+
+desc "Generate docs html"
+task :generate_html do |t, args|
+  del_target(docs_generate_target)
+  generate_html(docs_path, docs_generate_target)
+end
+
+
+desc "Copy docs html to website, if debug param is set, only copy a part of docs"
+task :copy_html, :debug do |t, args|
+  args.with_defaults(:debug=> true)
+  debug = args[:debug]
+
+  del_target(docs_target_path)
+  if ["true", "false", true, false].include? debug
+    copy_html(docs_generate_target, docs_target_path, debug == "true")
+  else
+    if debug.is_a?(String) && debug.match(/(\w+\|?)*?/)
+      debug = debug.split("|")
+      copy_html(docs_generate_target, docs_target_path, debug)
+    end
+  end
+end
+
+
+desc "Generate html and copy"
+task :gen_copy => [:generate_html, :copy_html] do
+end
+
+
+desc "Copy docs.json to website"
+task :copy_index_json do
+  filename = "docs.json"
+  del_target(json_target_path + filename)
+  FileUtils.copy(docs_path + filename, json_target_path)
+  puts "Copy docs.json Done"
+end
+
+
+desc "Copy docs credits"
+task :copy_credits do 
+  filename = "credits.json"
+  del_target(json_target_path + filename)
+  copy_credits(credits_path, credits_regex, json_target_path)
+  puts "Copy docs credits Done"
+end
+
+
+desc "Copy all docs json and changed to javascript `menuJson` Object"
 task :copy_json_js do
   del_target(json_js_target_path)
-  copy_json(docs_path, json_js_target_path, method(:json_filter), method(:json_handle))
+  copy_json(docs_path, json_js_target_path, method(:json_handle))
+  puts "Copy all docs json to javascript Done"
 end
 
 
 desc "Copy JSON file include subTask [copy_json_js, copy_index_json]"
-task :copy_json => [:copy_json_js, :copy_index_json] do
+task :copy_json => [:copy_json_js, :copy_index_json, :copy_credits] do
+  puts "Copy JSON Done"
 end
 
-# desc "copy menu json data"
-# task :copy_menu do
-#   del_target(menu_target_path)
-#   copy_json(docs_path, menu_target_path)
-# end
 
-desc "copy assets file to website"
+
+desc "Copy assets file to website"
 task :copy_asset do
   # remove sass
   # FileUtils.rm_rf(Dir.glob(sass_path+ "*"))
@@ -274,19 +279,3 @@ task :copy_asset do
   FileUtils.cp_r(docs_image_path + ".", image_target_path)
   FileUtils.cp_r("#{devdocs_path}/public/images/.", image_target_path)
 end
-
-
-
-# desc "show devdocs task"
-# task :show_docs_task do
-#   cd "#{devdocs_path}" do
-#     system "rake -T"
-#   end
-# end
-
-# desc "show website task"
-# task :show_website_task do
-#   cd "#{website_path}" do
-#     system "rake -T"
-#   end
-# end
