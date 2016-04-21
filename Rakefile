@@ -12,6 +12,8 @@ $docs = nil
 
 devdocs_path = "devdocs"
 website_path = "website"
+icons_path = "docslogo"
+
 docs_path = "#{devdocs_path}/public/docs/"
 stylesheets_path = "#{devdocs_path}/assets/stylesheets/"
 sass_path = "#{website_path}/sass/"
@@ -24,8 +26,14 @@ docs_target_path = "#{website_path}/source/_docs/"
 json_target_path = "#{website_path}/source/_data/"
 json_js_target_path = "#{website_path}/source/json/"
 
+icons_source_path = "#{icons_path}/dist/beauty/72x72/"
+icons_target_path = "#{website_path}/source/images/docs/"
+
+
 credits_path = "#{devdocs_path}/assets/javascripts/templates/pages/about_tmpl.coffee"
 credits_regex = /credits\s*=\s*(\[[\s\S]*\])/
+
+$debugTestDocs = "git|grunt|backbone|underscore|bower|typescript"
 
 
 def del_target(target)
@@ -135,7 +143,7 @@ def copy_html(source_path, target_path, debug=true)
       if debug.kind_of?(Array)
         matchs = Regexp.new("(" + debug.join("|") + ")$" ).match(x)
       else
-        matchs = /(git|grunt|backbone|underscore|bower|go|ruby|erlang\~18|tcl_tk)$/.match(x)
+        matchs = Regexp.new("(" + $debugTestDocs + ")$").match(x)
       end
       if matchs
         tarpath = target_path + matchs[1]
@@ -215,10 +223,9 @@ desc "Copy docs html to website, if debug param is set, only copy a part of docs
 task :copy_html, :debug do |t, args|
   args.with_defaults(:debug=> true)
   debug = args[:debug]
-
   del_target(docs_target_path)
   if ["true", "false", true, false].include? debug
-    copy_html(docs_generate_target, docs_target_path, debug == "true")
+    copy_html(docs_generate_target, docs_target_path, (debug == "true" || debug == true))
   else
     if debug.is_a?(String) && debug.match(/(\w+\|?)*?/)
       debug = debug.split("|")
@@ -264,6 +271,11 @@ task :copy_json => [:copy_json_js, :copy_index_json, :copy_credits] do
   puts "Copy JSON Done"
 end
 
+desc "Copy icons file to website"
+task :copy_icons do
+  FileUtils.rm_rf(Dir.glob(icons_target_path+ "*"))
+  FileUtils.cp_r(icons_source_path + ".", icons_target_path)
+end
 
 
 desc "Copy assets file to website"
