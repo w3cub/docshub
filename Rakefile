@@ -195,7 +195,7 @@ def json_handle(target)
   file["entries"] = entries
 
   openfile = open(target, 'w') do |page|
-    page << "var menuJson =  "
+    page << "app = app || {};\n app.DOC =  "
     page << file.to_json
     page <<";"
   end
@@ -290,4 +290,10 @@ task :copy_asset do
   # copy image
   FileUtils.cp_r(docs_image_path + ".", image_target_path)
   FileUtils.cp_r("#{devdocs_path}/public/images/.", image_target_path)
+end
+
+
+desc "update all static files"
+task :copy_all => [:copy_asset, :copy_icons, :copy_json, :generate_html] do
+  Rake::Task[:copy_html].invoke("grunt|backbone|underscore|bower")
 end
