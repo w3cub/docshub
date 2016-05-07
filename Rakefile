@@ -48,6 +48,12 @@ def get_type(slug)
   item[0] && item[0]["type"]
 end
 
+def get_doc(slug)
+  docs = $docs || ($docs = JSON.parse( IO.read("website/source/_data/docs.json")))
+  item = docs.select{ |item| item["slug"] == slug }
+  item[0]
+end
+
 def fix_doc_link(html, path)
   # puts path
   doc = Nokogiri::HTML(html)
@@ -79,7 +85,8 @@ def fix_doc_link(html, path)
   robj[:title] = title ? (title.gsub(/[^\w\s\-\:]/," ").strip.downcase + " - #{slug}") : slug
   robj[:slug] = slug
   robj[:isindex] = Regexp.new("#{slug}\/index\.html$") =~ path
-  robj[:keywords] = title.strip.downcase.split(/[\/\.\$\s,@:-_`"]+/).push(slug).uniq().reject { |c| c.empty? || ['a', 'and', 'the'].include?(c) }.join(", ")
+  small_words = %w(a an and as at but by en for if in of on or the to v v. via vs vs.)
+  robj[:keywords] = title.strip.downcase.split(/[\/\.\$\s,@:-_`"]+/).push(slug).uniq().reject { |c| c.empty? || small_words.include?(c) }.join(", ")
 
   robj
 end
@@ -195,7 +202,9 @@ def json_handle(target)
   file["entries"] = entries
 
   openfile = open(target, 'w') do |page|
-    page << "app = app || {};\n app.DOC =  "
+    page << "app.DOC = "
+    page << get_doc(/([\w~.]+)\.json/.match(target)[1]).to_json
+    page <<";\napp.INDEXDOC = "
     page << file.to_json
     page <<";"
   end
@@ -290,6 +299,12 @@ task :copy_asset do
   # copy image
   FileUtils.cp_r(docs_image_path + ".", image_target_path)
   FileUtils.cp_r("#{devdocs_path}/public/images/.", image_target_path)
+end
+
+
+desc "copy html static files for test"
+task :copy_test do
+  Rake::Task[:copy_html].invoke("git|node")
 end
 
 
