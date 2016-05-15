@@ -6,6 +6,8 @@ require 'json'
 require 'nokogiri'
 require 'logger'
 
+require './lib/string'
+
 
 $debug = false
 $docs = nil
@@ -33,7 +35,10 @@ icons_target_path = "#{website_path}/source/images/docs/"
 credits_path = "#{devdocs_path}/assets/javascripts/templates/pages/about_tmpl.coffee"
 credits_regex = /credits\s*=\s*(\[[\s\S]*\])/
 
+$docs_json_path = "#{json_target_path}docs.json"
 $debugTestDocs = "git|grunt|backbone|underscore|bower|typescript"
+
+$alldocs = {}
 
 
 def del_target(target)
@@ -43,15 +48,42 @@ def del_target(target)
 end
 
 def get_type(slug)
-  docs = $docs || ($docs = JSON.parse( IO.read("website/source/_data/docs.json")))
+  docs = $docs || ($docs = JSON.parse( IO.read($docs_json_path)))
   item = docs.select{ |item| item["slug"] == slug }
   item[0] && item[0]["type"]
 end
 
 def get_doc(slug)
-  docs = $docs || ($docs = JSON.parse( IO.read("website/source/_data/docs.json")))
+  docs = $docs || ($docs = JSON.parse( IO.read($docs_json_path)))
   item = docs.select{ |item| item["slug"] == slug }
   item[0]
+end
+
+def get_link_title(slug, path)
+  file = $alldocs[slug]
+  item = file["entries"].select{ |item| item["path"] == path }
+  (item && item[0] && item[0]["name"]) || ""
+end
+
+def get_title(doc, slug, path, view_path, slugtitle)
+  scrantitle = pagetitle =  nil
+  pagetitle = get_link_title(slug, view_path)
+  scrantitle = doc.css('h1 > text()').text.blank? ? doc.css('h1') && doc.css('h1').first && doc.css('h1').first.text : doc.css('h1 > text()').text
+  title = !(path =~ /docs-cache\/([\w~.]+)\/index\.html/) ? (!pagetitle.blank? ? pagetitle : scrantitle): ""
+  if title.blank? 
+    title = slugtitle + " documentation"
+  else
+    title = title + " - " + slugtitle
+  end  
+  title
+end
+
+def get_description(doc, slug, path, slugtitle)
+  if Regexp.new("/docs-cache\/#{slug}\/index\.html$") =~ path # #{slug}
+    slugtitle + " documentation"
+  else
+    doc.css('p') && doc.css('p').first && doc.css('p').first.text
+  end
 end
 
 def fix_doc_link(html, path)
@@ -63,7 +95,7 @@ def fix_doc_link(html, path)
       href = link.attributes["href"].value
       if(!(/^http(s)?/ =~ href))
         if(/^([^#]|\.\.\/)/ =~ href)
-          if(!(/\w+\/index\.html/ =~path.sub(Regexp.new("{#docs_generate_target}"), ""))) #  location.pathname != "/" + PageConfig.doctype +"/"
+          if(!(/\w+\/index\.html/ =~path.sub(Regexp.new("{#docs_generate_target}"), ""))) #f
             href = "../" + href
           end
         end
@@ -79,14 +111,26 @@ def fix_doc_link(html, path)
     end
   end
   slug = /docs-cache\/([\w~.]+)/.match(path)[1]
-  title = doc.css('h1 > text()').text  == ""  ? doc.css('h1').text : doc.css('h1 > text()').text
+  view_path = /docs-cache\/[\w~.]+\/([\s\S]*?)?((\/\bindex\b)?\.html)$/.match(path)[1]
+  view_path = view_path.insert(-1, "/") if view_path[-1, 1] != "/" 
+  puts "view_path: " + view_path
+  cdoc = get_doc(slug)
+  slugtitle = cdoc["name"]  + (cdoc["version"] ? " " + cdoc["version"] : "")
+  title = get_title(doc, slug, path, view_path, slugtitle)
+  description = get_description(doc, slug, path, slugtitle)
   robj = {}
+
   robj[:text] = doc.css('body').inner_html
-  robj[:title] = title ? (title.gsub(/[^\w\s\-\:]/," ").strip.downcase + " - #{slug}") : slug
+  robj[:title] = "\"#{title.enco}\""
   robj[:slug] = slug
-  robj[:isindex] = Regexp.new("#{slug}\/index\.html$") =~ path
-  small_words = %w(a an and as at but by en for if in of on or the to v v. via vs vs.)
-  robj[:keywords] = title.strip.downcase.split(/[\/\.\$\s,@:-_`"]+/).push(slug).uniq().reject { |c| c.empty? || small_words.include?(c) }.join(", ")
+  robj[:slugtitle] = slugtitle
+  robj[:description] = "\"#{!description.nil? ? description.enco : title.enco}\""
+  # robj[:permalink] = 
+  robj[:isindex] = Regexp.new("([^\/]+)\/index\.html$") =~ path # #{slug}
+  small_words = %w(a an as but by en in of the to v v. via vs vs.)
+  scrantitle = doc.css('h1 > text()').text.blank? ? doc.css('h1') && doc.css('h1').first && doc.css('h1').first.text : doc.css('h1 > text()').text
+  keywords = ((scrantitle.nil? ? "" : scrantitle) +" "+title).strip.downcase.split(/[\/\.\s\(\)\d,@:-_`"]+/).push(slug).uniq().reject { |c| c.empty? || c.is_i? || small_words.include?(c) }.join(", ").strip_html.strip
+  robj[:keywords] = "\"#{keywords.enco}\""
 
   robj
 end
@@ -98,26 +142,20 @@ def handle_file(target)
   doc = fix_doc_link(file, target) # fix link
   type = get_type(doc[:slug])
 
-  # mtitle = doc.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)
-  # title = mtitle ? mtitle[1].gsub(/<([a-z]+)[^>]*>([\s\S]*?)<\/\1>/, "").gsub("\\","%5C").gsub("\"","\\\"").strip.downcase : "no title"
-  # isindex = Regexp.new("#{slug}\/index\.html$") =~ target
-
   openfile = open(target, 'w') do |page|
     page.puts "---"
     page.puts "layout: docs"
-    page.puts "title: \"#{doc[:title]}\""
+    page.puts "title: #{doc[:title]}"
+    page.puts "description: #{doc[:description]}"
     page.puts "keywords: #{doc[:keywords]}"
-    page.puts "date: #{Time.now.strftime('%Y-%m-%d %H:%M')}"
-    page.puts "comments: true"
-    page.puts "sharing: true"
-    page.puts "footer: true"
     page.puts "slug: #{doc[:slug]}"
+    page.puts "slugtitle: #{doc[:slugtitle]}"
     page.puts "type: #{type}"
     page.puts "permalink: " + (doc[:isindex] ?  "/:path.html" : "/:path/")
     page.puts "---\n"
-    page << "{% raw %}\n"
+    page << "{% oopsraw %}\n"
     page << doc[:text]
-    page << "{% endraw %}"
+    page << "{% endoopsraw %}"
   end
 end
 
@@ -129,19 +167,6 @@ def generate_html(source_path, target_path)
       puts "handle: " + target
       handle_file(target)
   end
-  # Find.find(source_path) do |source|
-  #   if File.directory?(source)
-  #     # Find.prune if File.basename(source) == '.svn'
-  #   else
-  #     Find.prune unless /\.html$/ =~ File.basename(source) # filter html only
-
-  #     target = source.sub(/^#{source_path}/, target_path)
-  #     FileUtils.mkdir_p(File.dirname(target))
-  #     FileUtils.copy(source, target)
-  #     puts "handle: " + target
-  #     handle_file(target)
-  #   end
-  # end
 end
 
 def copy_html(source_path, target_path, debug=true)
@@ -182,9 +207,12 @@ def json_handle(target)
   file = JSON.parse(IO.read(target))
   entries = file["entries"]
   # $logger.info("+ " + target)
-  entries.map { |item|
+  entries.map! { |item|
     item["path"] = item["path"]
-    .sub(/^index(\/)?/, "")
+    .sub(/(\/index\b)($|#?)/) do |match|
+      match.slice! "\/index"
+      match
+    end
     .sub(/([^\/\#]+)?(?:#[^\#]+)?$/) do |all|
       if all.include?("#")
         idx = all.index("#").to_i
@@ -199,11 +227,14 @@ def json_handle(target)
     end
     item
   }
-  file["entries"] = entries
+
+  slug = /([\w~.]+)\.json/.match(target)[1]
+
+  $alldocs[slug] = file  #cache for title generate
 
   openfile = open(target, 'w') do |page|
     page << "app.DOC = "
-    page << get_doc(/([\w~.]+)\.json/.match(target)[1]).to_json
+    page << get_doc(slug).to_json
     page <<";\napp.INDEXDOC = "
     page << file.to_json
     page <<";"
@@ -293,7 +324,6 @@ task :copy_asset do
   # FileUtils.rm_rf(Dir.glob(sass_path+ "*"))
   # copy sass
   # FileUtils.cp_r(stylesheets_path + ".", sass_path)
-
   # remove image
   FileUtils.rm_rf(Dir.glob(image_target_path+ "*"))
   # copy image
@@ -304,11 +334,17 @@ end
 
 desc "copy html static files for test"
 task :copy_test do
-  Rake::Task[:copy_html].invoke("git|node")
+  Rake::Task[:copy_html].invoke("php|d3")
+end
+
+desc "copy all html files, in order to pre-release"
+task :copy_allhtml do
+  Rake::Task[:copy_html].invoke(false)
 end
 
 
 desc "update all static files"
 task :copy_all => [:copy_asset, :copy_icons, :copy_json, :generate_html] do
-  Rake::Task[:copy_html].invoke("grunt|backbone|underscore|bower")
+  # Rake::Task[:copy_html].invoke("html|jquery|css")
+  Rake::Task[:copy_test].invoke()
 end
