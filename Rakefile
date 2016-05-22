@@ -38,6 +38,10 @@ credits_regex = /credits\s*=\s*(\[[\s\S]*\])/
 $docs_json_path = "#{json_target_path}docs.json"
 $debugTestDocs = "git|grunt|backbone|underscore|bower|typescript"
 
+
+$fix_link_regex = /(?=(?:(?!(\/|^)index).)*)((\/|^)index)?(?=#|$)/
+# https://regex101.com/r/gZ0mK1/1
+
 $alldocs = {}
 
 
@@ -86,7 +90,7 @@ def get_description(doc, slug, path, slugtitle)
   end
 end
 
-def fix_doc_link(html, path)
+def fix_doc_link(html, path, slug)
   # puts path
   doc = Nokogiri::HTML(html)
   # fix link
@@ -99,11 +103,17 @@ def fix_doc_link(html, path)
             href = "../" + href
           end
         end
-        if (/#/ =~ href)
-          href = href.gsub(/(\/[\w-\.]+)#/, '\1/#')
-        elsif (!(/\.html$/ =~href))
-          href = href + '/'
+
+        href = href.sub($fix_link_regex, (href[0,1] == "#" ? "" : "/"))
+
+        if /api/=~ href && slug == "bower"
+          href = href.sub(/api\//, "")
         end
+        # if (/#/ =~ href)
+        #   href = href.gsub(/(\/[\w-\.]+)#/, '\1/#')
+        # elsif (!(/\.html$/ =~href))
+        #   href = href + '/'
+        # end
         link.attributes["href"].value = href
       else
         link.set_attribute('target', '_blank')
@@ -139,7 +149,7 @@ def handle_file(target)
   # handle file
   slug = /docs-cache\/(\w+)/.match(target)[1] # doc name
   file = IO.read(target)
-  doc = fix_doc_link(file, target) # fix link
+  doc = fix_doc_link(file, target, slug) # fix link
   type = get_type(doc[:slug])
 
   openfile = open(target, 'w') do |page|
@@ -209,22 +219,28 @@ def json_handle(target)
   # $logger.info("+ " + target)
   entries.map! { |item|
     item["path"] = item["path"]
-    .sub(/(\/index\b)($|#?)/) do |match|
-      match.slice! "\/index"
-      match
-    end
-    .sub(/([^\/\#]+)?(?:#[^\#]+)?$/) do |all|
-      if all.include?("#")
-        idx = all.index("#").to_i
-        if idx > 0
-          all.insert(idx, "/")
-        else
-          all
-        end
-      else
-        all.insert(-1, "/")
-      end
-    end
+    .sub($fix_link_regex, '/')
+    # .sub(/((^|\/)index\b)($|#?)/) do |match|
+    #   if match[0,1] == "\/"
+    #     match.slice! "\/index"
+    #   else
+    #     match.slice! "index"
+    #   end    
+    #   match
+    # end
+    # .sub(/([^\/\#]+)?(?:#[^\#]+)?$/) do |all|
+    #   if all.include?("#")
+    #     idx = all.index("#").to_i
+    #     if idx > 0
+
+    #       all.insert(idx, "/")
+    #     else
+    #       all
+    #     end
+    #   else
+    #     all.insert(-1, "/")
+    #   end
+    # end
     item
   }
 
@@ -253,9 +269,16 @@ end
 
 
 desc "Generate docs html"
-task :generate_html do |t, args|
-  del_target(docs_generate_target)
-  generate_html(docs_path, docs_generate_target)
+task :generate_html, :slug do |t, args|
+  args.with_defaults(:slug=> false)
+  slug = args[:slug]
+  if slug
+    del_target(docs_generate_target + slug + '/')
+    generate_html(docs_path + slug + '/', docs_generate_target+ slug + '/')
+  else
+    del_target(docs_generate_target)
+    generate_html(docs_path, docs_generate_target)
+  end  
 end
 
 
@@ -331,10 +354,15 @@ task :copy_asset do
   FileUtils.cp_r("#{devdocs_path}/public/images/.", image_target_path)
 end
 
+desc "generate html test"
+task :generate_test => [:copy_json_js] do
+  Rake::Task[:generate_html].invoke("bower")
+end
+
 
 desc "copy html static files for test"
 task :copy_test do
-  Rake::Task[:copy_html].invoke("php|d3")
+  Rake::Task[:copy_html].invoke("backbone|go|underscore|bower")
 end
 
 desc "copy all html files, in order to pre-release"
@@ -347,4 +375,11 @@ desc "update all static files"
 task :copy_all => [:copy_asset, :copy_icons, :copy_json, :generate_html] do
   # Rake::Task[:copy_html].invoke("html|jquery|css")
   Rake::Task[:copy_test].invoke()
+end
+
+
+desc "default task"
+task :default do
+   Rake::Task[:generate_test].invoke()
+   Rake::Task[:copy_test].invoke()
 end
