@@ -5,6 +5,7 @@ require 'fileutils'
 require 'json'
 require 'nokogiri'
 require 'logger'
+require 'thread'
 
 require './lib/string'
 
@@ -60,11 +61,16 @@ end
 def get_doc(slug)
   docs = $docs || ($docs = JSON.parse( IO.read($docs_json_path)))
   item = docs.select{ |item| item["slug"] == slug }
-  item[0]
+  begin
+    item[0]
+  rescue Exception => e
+     raise "You need to run copy_json task first."
+  end
+  # item[0]
 end
 
 def get_link_title(slug, path)
-  file = $alldocs[slug]
+  file = $alldocs[slug] || get_json_content('devdocs/public/docs/'+ slug +'/index.json')
   item = file["entries"].select{ |item| item["path"] == path }
   (item && item[0] && item[0]["name"]) || ""
 end
@@ -83,7 +89,7 @@ def get_title(doc, slug, path, view_path, slugtitle)
 end
 
 def get_description(doc, slug, path, slugtitle)
-  if Regexp.new("/docs-cache\/#{slug}\/index\.html$") =~ path # #{slug}
+  if Regexp.new(Regexp.quote("docs-cache\/#{slug}\/index\.html") + "$") =~ path # #{slug}
     slugtitle + " documentation"
   else
     doc.css('p') && doc.css('p').first && doc.css('p').first.text
@@ -103,9 +109,7 @@ def fix_doc_link(html, path, slug)
             href = "../" + href
           end
         end
-
         href = href.sub($fix_link_regex, (href[0,1] == "#" ? "" : "/"))
-
         if /api/=~ href && slug == "bower"
           href = href.sub(/api\//, "")
         end
@@ -212,8 +216,7 @@ def get_child_path(path)
   Dir.glob(path + "*")
 end
 
-
-def json_handle(target)
+def get_json_content(target)
   file = JSON.parse(IO.read(target))
   entries = file["entries"]
   # $logger.info("+ " + target)
@@ -243,7 +246,13 @@ def json_handle(target)
     # end
     item
   }
+  file
+end
 
+
+def json_handle(target)
+  puts target
+  file = get_json_content(target)
   slug = /([\w~.]+)\.json/.match(target)[1]
 
   $alldocs[slug] = file  #cache for title generate
@@ -272,9 +281,31 @@ desc "Generate docs html"
 task :generate_html, :slug do |t, args|
   args.with_defaults(:slug=> false)
   slug = args[:slug]
+  puts slug
   if slug
-    del_target(docs_generate_target + slug + '/')
-    generate_html(docs_path + slug + '/', docs_generate_target+ slug + '/')
+    queue = Queue.new
+    threads = []
+    slug.split(' ').each do |doc|
+      doc = doc.gsub('@','~') # replace version spliter
+      queue.push(doc)
+    end
+    2.times do
+      threads<<Thread.new do
+        until queue.empty?
+          doc = queue.pop(true) rescue nil
+
+          del_target(docs_generate_target + doc + '/')
+          generate_html(docs_path + doc + '/', docs_generate_target+ doc + '/')
+        end
+      end
+    end
+    threads.each{|t| t.join}
+    # slug.split(' ').each do |doc|
+    #   doc.gsub!('@','~') # replace version spliter
+    #   puts doc + 'haha'
+    #   del_target(docs_generate_target + doc + '/')
+    #   generate_html(docs_path + doc + '/', docs_generate_target+ doc + '/')
+    # end
   else
     del_target(docs_generate_target)
     generate_html(docs_path, docs_generate_target)
@@ -291,7 +322,7 @@ task :copy_html, :debug do |t, args|
     copy_html(docs_generate_target, docs_target_path, (debug == "true" || debug == true))
   else
     if debug.is_a?(String) && debug.match(/(\w+\|?)*?/)
-      debug = debug.split("|")
+      debug = debug.split("| ")
       copy_html(docs_generate_target, docs_target_path, debug)
     end
   end
@@ -355,14 +386,14 @@ task :copy_asset do
 end
 
 desc "generate html test"
-task :generate_test => [:copy_json_js] do
-  Rake::Task[:generate_html].invoke("bower")
+task :generate_test  do # => [:copy_json_js]
+  Rake::Task[:generate_html].invoke("scikit_image")
 end
 
 
 desc "copy html static files for test"
 task :copy_test do
-  Rake::Task[:copy_html].invoke("backbone|go|underscore|bower")
+  Rake::Task[:copy_html].invoke("backbone|go|underscore|bower|html|css|dom|dom_events|fish~2.3|bottle~0.12")
 end
 
 desc "copy all html files, in order to pre-release"
