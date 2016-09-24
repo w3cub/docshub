@@ -313,6 +313,7 @@ task :generate_html, :slug do |t, args|
 end
 
 
+
 desc "Copy docs html to website, if debug param is set, only copy a part of docs"
 task :copy_html, :debug do |t, args|
   args.with_defaults(:debug=> true)
@@ -385,16 +386,7 @@ task :copy_asset do
   FileUtils.cp_r("#{devdocs_path}/public/images/.", image_target_path)
 end
 
-desc "generate html test"
-task :generate_test  do # => [:copy_json_js]
-  Rake::Task[:generate_html].invoke("scikit_image")
-end
 
-
-desc "copy html static files for test"
-task :copy_test do
-  Rake::Task[:copy_html].invoke("backbone|go|underscore|bower|html|css|dom|dom_events|fish~2.3|bottle~0.12")
-end
 
 desc "copy all html files, in order to pre-release"
 task :copy_allhtml do
@@ -409,8 +401,22 @@ task :copy_all => [:copy_asset, :copy_icons, :copy_json, :generate_html] do
 end
 
 
+
+desc "generate html test"
+task :generate_test  do # => [:copy_json_js]
+  Rake::Task[:generate_html].invoke("node")
+end
+
+
+desc "copy html static files for test"
+task :copy_test do
+  Rake::Task[:copy_html].invoke("backbone|underscore|bower")
+end
+
+
 desc "default task"
 task :default do
+   Rake::Task[:copy_json].invoke()
    Rake::Task[:generate_test].invoke()
    Rake::Task[:copy_test].invoke()
 end
