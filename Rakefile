@@ -404,13 +404,13 @@ end
 
 desc "generate html test"
 task :generate_test  do # => [:copy_json_js]
-  Rake::Task[:generate_html].invoke("node")
+  Rake::Task[:generate_html].invoke("apache_pig~0.16 cakephp~2.8 lua~5.1 tensorflow~guide yarn")
 end
 
 
 desc "copy html static files for test"
 task :copy_test do
-  Rake::Task[:copy_html].invoke("backbone|underscore|bower")
+  Rake::Task[:copy_html].invoke("pandas~0.19|yarn|twig")
 end
 
 
