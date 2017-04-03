@@ -3,7 +3,7 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
 
 
 
-##Submodules
+## Submodules
 
 
 .   
@@ -13,7 +13,7 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
 
 
 
-##Usage
+## Usage
 
 	git clone --recursive git@github.com:icai/docshub.git
 	cd docshub 
@@ -26,7 +26,7 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
     rake test_preview
 
 
-##Release
+## Release
 
 	cd ./website
 	rake setup_gen # setup generate queue
@@ -34,7 +34,7 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
 
  
 
-##Jekyll Case
+## Jekyll Case
 
 > ... is invalid because it contains a colon https://github.com/jekyll/jekyll/issues/5261
 
@@ -53,7 +53,7 @@ comment the code like the following:
       # end
 
 
-##License
+## License
 
 This software is licensed under the terms of the Mozilla Public License v2.0. 
 
