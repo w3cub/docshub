@@ -284,6 +284,7 @@ task :generate_html, :slug do |t, args|
   # puts slug
   threads = []
   queue = Queue.new
+  history = false
   if slug
     slug.split(' ').each do |doc|
       doc = doc.gsub('@','~') # replace version spliter
@@ -297,19 +298,35 @@ task :generate_html, :slug do |t, args|
     #   generate_html(docs_path + doc + '/', docs_generate_target+ doc + '/')
     # end
   else
-    del_target(docs_generate_target)
-    Dir.glob("#{docs_path}/*") { |dir|  
+    if !File.exist?('.history')
+      File.new('.history', "a").close
+    end
+
+    history = true
+    historyFile = IO.read('.history')
+    # del_target(docs_generate_target)
+    Dir.glob("#{docs_path}/*") { |dir|
       queue.push dir.gsub("#{docs_path}/",'')
     }
     # generate_html(docs_path, docs_generate_target)
   end
-  2.times do
+  1.times do
     threads<<Thread.new do
       until queue.empty?
         doc = queue.pop(true) rescue nil
-
-        del_target(docs_generate_target + doc + '/')
-        generate_html(docs_path + doc + '/', docs_generate_target+ doc + '/')
+        if history
+          if !(Regexp.new(Regexp.escape(doc)  + "\n")=~ historyFile)
+            del_target(docs_generate_target + doc + '/')
+            generate_html(docs_path + doc + '/', docs_generate_target+ doc + '/')
+            # write history  
+            open('.history', 'a') do |file|
+              file.puts doc      
+            end
+          end
+        else
+          del_target(docs_generate_target + doc + '/')
+          generate_html(docs_path + doc + '/', docs_generate_target+ doc + '/')
+        end
       end
     end
   end
