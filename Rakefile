@@ -276,30 +276,29 @@ def copy_credits(path, regex, target)
 end
 
 
+task :t_gen  do
+  names = []
+  Dir.glob("#{docs_path}/*") { |dir|  
+    names.push dir.gsub("#{docs_path}/",'')
+  }
+  puts names.join(' ')
+end
+
+
 
 desc "Generate docs html"
 task :generate_html, :slug do |t, args|
   args.with_defaults(:slug=> false)
   slug = args[:slug]
-  puts slug
+  # puts slug
+  threads = []
+  queue = Queue.new
   if slug
-    queue = Queue.new
-    threads = []
     slug.split(' ').each do |doc|
       doc = doc.gsub('@','~') # replace version spliter
       queue.push(doc)
     end
-    2.times do
-      threads<<Thread.new do
-        until queue.empty?
-          doc = queue.pop(true) rescue nil
-
-          del_target(docs_generate_target + doc + '/')
-          generate_html(docs_path + doc + '/', docs_generate_target+ doc + '/')
-        end
-      end
-    end
-    threads.each{|t| t.join}
+    
     # slug.split(' ').each do |doc|
     #   doc.gsub!('@','~') # replace version spliter
     #   puts doc + 'haha'
@@ -308,8 +307,22 @@ task :generate_html, :slug do |t, args|
     # end
   else
     del_target(docs_generate_target)
-    generate_html(docs_path, docs_generate_target)
-  end  
+    Dir.glob("#{docs_path}/*") { |dir|  
+      queue.push dir.gsub("#{docs_path}/",'')
+    }
+    # generate_html(docs_path, docs_generate_target)
+  end
+  2.times do
+    threads<<Thread.new do
+      until queue.empty?
+        doc = queue.pop(true) rescue nil
+
+        del_target(docs_generate_target + doc + '/')
+        generate_html(docs_path + doc + '/', docs_generate_target+ doc + '/')
+      end
+    end
+  end
+  threads.each{|t| t.join}
 end
 
 

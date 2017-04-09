@@ -21,6 +21,7 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
     cd ./devdocs 
     thor docs:download --all # download all file
     cd ..
+    rake copy_json # generate all json files
     rake copy_allhtml # generate all file to website
     cd ./website
     rake test_preview
