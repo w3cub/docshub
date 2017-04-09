@@ -276,15 +276,6 @@ def copy_credits(path, regex, target)
 end
 
 
-task :t_gen  do
-  names = []
-  Dir.glob("#{docs_path}/*") { |dir|  
-    names.push dir.gsub("#{docs_path}/",'')
-  }
-  puts names.join(' ')
-end
-
-
 
 desc "Generate docs html"
 task :generate_html, :slug do |t, args|
