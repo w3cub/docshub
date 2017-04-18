@@ -223,27 +223,6 @@ def get_json_content(target)
   entries.map! { |item|
     item["path"] = item["path"]
     .sub($fix_link_regex, '/')
-    # .sub(/((^|\/)index\b)($|#?)/) do |match|
-    #   if match[0,1] == "\/"
-    #     match.slice! "\/index"
-    #   else
-    #     match.slice! "index"
-    #   end    
-    #   match
-    # end
-    # .sub(/([^\/\#]+)?(?:#[^\#]+)?$/) do |all|
-    #   if all.include?("#")
-    #     idx = all.index("#").to_i
-    #     if idx > 0
-
-    #       all.insert(idx, "/")
-    #     else
-    #       all
-    #     end
-    #   else
-    #     all.insert(-1, "/")
-    #   end
-    # end
     item
   }
   file
@@ -299,7 +278,7 @@ task :generate_html, :slug do |t, args|
     # end
   else
     if !File.exist?('.history')
-      File.new('.history', "a").close
+      File.new('.history', "w").close
     end
 
     history = true
@@ -310,7 +289,7 @@ task :generate_html, :slug do |t, args|
     }
     # generate_html(docs_path, docs_generate_target)
   end
-  1.times do
+  2.times do
     threads<<Thread.new do
       until queue.empty?
         doc = queue.pop(true) rescue nil
@@ -319,7 +298,7 @@ task :generate_html, :slug do |t, args|
             del_target(docs_generate_target + doc + '/')
             generate_html(docs_path + doc + '/', docs_generate_target+ doc + '/')
             # write history  
-            open('.history', 'a') do |file|
+            File.open('.history', 'a') do |file|
               file.puts doc      
             end
           end
@@ -418,7 +397,7 @@ end
 desc "update all static files"
 task :copy_all => [:copy_asset, :copy_icons, :copy_json, :generate_html] do
   # Rake::Task[:copy_html].invoke("html|jquery|css")
-  Rake::Task[:copy_test].invoke()
+  # Rake::Task[:copy_test].invoke()
 end
 
 
@@ -431,13 +410,6 @@ end
 
 desc "copy html static files for test"
 task :copy_test do
-  Rake::Task[:copy_html].invoke("pandas~0.19|yarn|twig")
+  Rake::Task[:copy_html].invoke("angular~4_typescript|yarn|twig")
 end
 
-
-desc "default task"
-task :default do
-   Rake::Task[:copy_json].invoke()
-   Rake::Task[:generate_test].invoke()
-   Rake::Task[:copy_test].invoke()
-end
