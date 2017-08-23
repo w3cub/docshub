@@ -254,6 +254,18 @@ def copy_credits(path, regex, target)
   IO.write(target + "credits.json", data)
 end
 
+desc "genonly docs html"
+task :genonly do |t, args|
+  queue = Array.new
+  Dir.glob("#{docs_path}/*") { |dir|
+    dir.gsub!("#{docs_path}/",'')
+    queue.push dir
+  }
+  # puts queue.sort()
+  IO.write('.genonly', queue.sort().join("\n"))
+end
+
+
 
 
 desc "Generate docs html"
@@ -284,32 +296,43 @@ task :generate_html, :slug do |t, args|
     history = true
     historyFile = IO.read('.history')
     # del_target(docs_generate_target)
+
+    ignore = IO.read('.genonly')
+    ignore = ignore.split("\n")
+
     Dir.glob("#{docs_path}/*") { |dir|
-      queue.push dir.gsub("#{docs_path}/",'')
+      dir.gsub!("#{docs_path}/",'')
+      unless ignore.index(dir) == nil
+        queue.push dir
+      end
     }
     # generate_html(docs_path, docs_generate_target)
   end
-  2.times do
-    threads<<Thread.new do
-      until queue.empty?
-        doc = queue.pop(true) rescue nil
-        if history
-          if !(Regexp.new(Regexp.escape(doc)  + "\n")=~ historyFile)
-            del_target(docs_generate_target + doc + '/')
-            generate_html(docs_path + doc + '/', docs_generate_target+ doc + '/')
-            # write history  
-            File.open('.history', 'a') do |file|
-              file.puts doc      
-            end
-          end
-        else
-          del_target(docs_generate_target + doc + '/')
-          generate_html(docs_path + doc + '/', docs_generate_target+ doc + '/')
+
+
+
+  until queue.empty?
+    doc = queue.pop(true) rescue nil
+    if history
+      if !(Regexp.new(Regexp.escape(doc)  + "\n")=~ historyFile)
+        del_target(docs_generate_target + doc + '/')
+        generate_html(docs_path + doc + '/', docs_generate_target+ doc + '/')
+        # write history  
+        File.open('.history', 'a') do |file|
+          file.puts doc      
         end
       end
+    else
+      del_target(docs_generate_target + doc + '/')
+      generate_html(docs_path + doc + '/', docs_generate_target+ doc + '/')
     end
   end
-  threads.each{|t| t.join}
+  # 2.times do
+  #   threads<<Thread.new do
+
+  #   end
+  # end
+  # threads.each{|t| t.join}
 end
 
 
@@ -338,8 +361,15 @@ end
 desc "Copy docs.json to website"
 task :copy_index_json do
   filename = "docs.json"
+  data = JSON.parse( IO.read(docs_path + filename))
+  ignore = IO.read('.genonly')
+  ignore = ignore.split("\n")
+
   del_target(json_target_path + filename)
-  FileUtils.copy(docs_path + filename, json_target_path)
+  data.select! do |item|
+    ignore.index(item["slug"]) != nil
+  end
+  IO.write(json_target_path + filename, data.to_json)
   puts "Copy docs.json Done"
 end
 
@@ -404,12 +434,12 @@ end
 
 desc "generate html test"
 task :generate_test  do # => [:copy_json_js]
-  Rake::Task[:generate_html].invoke("apache_pig~0.16 cakephp~2.8 lua~5.1 tensorflow~guide yarn")
+  Rake::Task[:generate_html].invoke("godot~2.1")
 end
 
 
 desc "copy html static files for test"
 task :copy_test do
-  Rake::Task[:copy_html].invoke("angular~4_typescript|yarn|twig")
+  Rake::Task[:copy_html].invoke("godot~2.1")
 end
 
