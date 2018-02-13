@@ -9,5 +9,5 @@
 	branch = source
 [submodule "docslogo"]
 	path = docslogo
-	url = git@github.com:icai/tech-logo.git
+	url = git@github.com:icai/docslogo.git
 	branch = master

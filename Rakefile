@@ -367,7 +367,7 @@ task :copy_index_json do
 
   del_target(json_target_path + filename)
   data.select! do |item|
-    ignore.index(item["slug"]) != nil
+    ss = ignore.include?(item["slug"])
   end
   IO.write(json_target_path + filename, data.to_json)
   puts "Copy docs.json Done"
