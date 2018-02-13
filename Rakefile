@@ -295,6 +295,7 @@ task :generate_html, :slug do |t, args|
 
     history = true
     historyFile = IO.read('.history')
+    historys = historyFile.split("\n")
     # del_target(docs_generate_target)
 
     ignore = IO.read('.genonly')
@@ -302,7 +303,7 @@ task :generate_html, :slug do |t, args|
 
     Dir.glob("#{docs_path}/*") { |dir|
       dir.gsub!("#{docs_path}/",'')
-      unless ignore.index(dir) == nil
+      unless !ignore.include?(dir)
         queue.push dir
       end
     }
@@ -314,7 +315,7 @@ task :generate_html, :slug do |t, args|
   until queue.empty?
     doc = queue.pop(true) rescue nil
     if history
-      if !(Regexp.new(Regexp.escape(doc)  + "\n")=~ historyFile)
+      if !(historys.include?(doc))
         del_target(docs_generate_target + doc + '/')
         generate_html(docs_path + doc + '/', docs_generate_target+ doc + '/')
         # write history  
@@ -335,7 +336,14 @@ task :generate_html, :slug do |t, args|
   # threads.each{|t| t.join}
 end
 
-
+task :sorthistory do |t, args|
+  historys = IO.readlines('.history')
+  historyFile = File.open('.history', 'w')
+  historys.sort!.each do |item|
+    historyFile.puts item
+  end
+  historyFile.close
+end
 
 desc "Copy docs html to website, if debug param is set, only copy a part of docs"
 task :copy_html, :debug do |t, args|
