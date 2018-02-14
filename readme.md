@@ -8,7 +8,7 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
 
 .   
 ├── [devdocs](https://github.com/icai/devdocs/) # Origin project    
-├── [docslogo](https://github.com/icai/tech-logo/) # Generate logos for index page    
+├── [docslogo](https://github.com/icai/docslogo/) # Generate logos for index page    
 └── [website](https://github.com/icai/docshub/tree/source) # Jekyll project , which we need to convert static pages	   
 
 
@@ -29,6 +29,7 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
     
 
     cd ..
+    rake generate_html # generate jekyll base(sand) document
     rake copy_icons # copy docslogo icons to website
     rake copy_json # generate all json files
     rake copy_allhtml # generate all file to website
