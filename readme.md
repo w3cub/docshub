@@ -6,10 +6,18 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
 ## Submodules
 
 
-.   
-├── [devdocs](https://github.com/icai/devdocs/) # Origin project    
-├── [docslogo](https://github.com/icai/docslogo/) # Generate logos for index page    
-└── [website](https://github.com/icai/docshub/tree/source) # Jekyll project , which we need to convert static pages	   
+./
+├── Gemfile
+├── LICENSE
+├── Rakefile
+├── devdocs  [devdocs](https://github.com/icai/devdocs/) # Origin project 
+├── docslogo [docslogo](https://github.com/icai/docslogo/) # Generate logos for index page 
+├── lib
+│   └── string.rb
+├── merge
+├── readme.md
+└── website [website](https://github.com/icai/docshub/tree/source) # Jekyll project , which we need to convert static pages	  
+ 
 
 
 

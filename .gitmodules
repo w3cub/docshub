@@ -1,13 +1,13 @@
 [submodule "devdocs"]
 	path = devdocs
-	url = git@github.com:icai/devdocs.git
+	url=git@github.com:w3cub/devdocs.git
 	branch = master
 
 [submodule "website"]
 	path = website
-	url = git@github.com:icai/docshub.git
-	branch = source
+	url=git@github.com:w3cub/docsgen.git
+	branch = master
 [submodule "docslogo"]
 	path = docslogo
-	url = git@github.com:icai/docslogo.git
+	url=git@github.com:w3cub/docslogo.git
 	branch = master
