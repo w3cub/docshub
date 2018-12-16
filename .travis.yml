@@ -19,4 +19,7 @@ before_script:
   - gem update --system
   - gem install bundler
   - npm install -g gulp-cli
+  - sh deploy/initdev.sh
+script:
+  - 
 after_success:
