@@ -18,6 +18,7 @@ before_script:
   - npm -v
   - gem update --system
   - gem install bundler
+  - bundle install
   - npm install -g gulp-cli
   - sh deploy/initdev.sh
 script:
