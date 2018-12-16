@@ -1,0 +1,17 @@
+language: ruby
+rvm:
+  - 2.5.1
+
+node_js: 10
+
+cache: bundler
+
+before_script:
+  - sudo apt-get -y install imagemagick graphicsmagick
+  - node -v
+  - npm -v
+  - gem update --system
+  - gem install bundler
+  - npm install -g gulp-cli
+
+after_success:
