@@ -451,3 +451,8 @@ task :copy_test do
   Rake::Task[:copy_html].invoke("godot~2.1")
 end
 
+desc "default"
+task :default do
+  system "echo \"DONE, Bye~\""
+  system "exit 0"
+end
