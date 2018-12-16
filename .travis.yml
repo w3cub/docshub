@@ -22,4 +22,5 @@ before_script:
   - npm install -g gulp-cli
   - sh deploy/initdev.sh
 script:
+  - exit 0
 after_success:
