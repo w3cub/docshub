@@ -1,5 +1,4 @@
 
-cd ..
 cd ./devdocs
 pwd
 bundle install
