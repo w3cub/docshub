@@ -1,10 +1,9 @@
 
-cd ./devdocs
-pwd
-bundle install
-bundle exec thor docs:download --default # download all file
+sh -c "cd ./devdocs && pwd && bundle install && bundle exec thor docs:download --default"
 
-cd ..
+# bundle install
+# bundle exec thor docs:download --default # download all file
+# cd ..
 cd ./docslogo
 npm install -d
 gulp beauty
