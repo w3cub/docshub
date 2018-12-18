@@ -3,9 +3,6 @@ language: ruby
 rvm:
   - 2.5.1
 
-node_js: 10
-
-cache: bundler
 
 git:
   submodules: false
