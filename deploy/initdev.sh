@@ -1,5 +1,7 @@
 
+cd ..
 cd ./devdocs
+pwd
 bundle install
 bundle exec thor docs:download --default # download all file
 
