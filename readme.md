@@ -2,7 +2,6 @@
 W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
 
 
-
 ## Submodules
 
 ```md
