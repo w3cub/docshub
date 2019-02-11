@@ -31,6 +31,7 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
     
 
     cd ..
+    
     rake generate_html # generate jekyll base(sand) document
     rake copy_icons # copy docslogo icons to website
     rake copy_json # generate all json files
@@ -42,8 +43,10 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
 ## Release
 
 	cd ./website
+    rake badlink # output badlink url, you need to add in the `_config.yml` file `include` options 
 	rake setup_gen # setup generate queue
  	rake multi_gen_deploy # project release
+    rake sitemap  # generate sitemap
 
  
 
