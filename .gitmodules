@@ -11,3 +11,8 @@
 	path = docslogo
 	url=git@github.com:w3cub/docslogo.git
 	branch = master
+
+[submodule "cheatsheets"]
+	path = cheatsheets
+	url = git@github.com:w3cub/cheatsheets.git
+	branch = master
