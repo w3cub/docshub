@@ -17,10 +17,10 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
 
 ## Usage
 
-    sudo apt install curl node 
+    sudo apt install curl nodejs
 
     # firewall user  
-    
+
     export http_proxy=http://127.0.0.1:1080 export https_proxy=$http_proxy export ALL_PROXY=$http_proxy
 
     # rvm

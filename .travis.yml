@@ -3,21 +3,41 @@ language: ruby
 rvm:
   - 2.6.5
 
+node_js:
+  - 12
+
+cache: bundler
 
 git:
   submodules: false
 
-before_script:
+before_install:
+
+  - sudo apt-get -y install imagemagick graphicsmagick
   - sed -i 's/git@github.com:/git:\/\/github.com\//' .gitmodules
   - git submodule update --init --recursive
-  - sudo apt-get -y install imagemagick graphicsmagick
-  - node -v
-  - npm -v
   - gem update --system
   - gem install bundler
+
+
+install:
   - bundle install
   - npm install -g gulp-cli
-  - sh deploy/initdev.sh
+  - cd ./devdocs
+  - bundle install --gemfile=./Gemfile
+  - cd ..
+  - cd ./docslogo
+  - npm install -d
+
+
 script:
-  - exit 0
+  - cd ./docslogo
+  - gulp beauty
+  - cd ..
+  - cd ./devdocs
+  - bundle exec thor docs:download --default
+
 after_success:
+
+
+matrix:
