@@ -6,6 +6,11 @@ rvm:
 node_js:
   - 12
 
+addons:
+  apt:
+    packages:
+      - libcurl4-openssl-dev
+
 cache: bundler
 
 git:
@@ -24,6 +29,7 @@ install:
   - bundle install
   - npm install -g gulp-cli
   - cd ./devdocs
+  - bundle config set specific_platform true
   - bundle install --gemfile=./Gemfile
   - cd ..
   - cd ./docslogo
