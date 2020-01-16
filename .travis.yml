@@ -35,7 +35,7 @@ script:
   - gulp beauty
   - cd ..
   - cd ./devdocs
-  - bundle exec thor docs:download --default
+  - thor docs:download --default
 
 after_success:
 

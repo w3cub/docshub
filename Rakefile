@@ -462,9 +462,6 @@ desc "travis ci init devdocs"
 task :devdocsci do
   cd "#{devdocs_path}" do 
     Bundler.with_clean_env {
-      system "pwd"
-      system "gem install bundler"
-      system "bundle install"
       system "bundle exec thor docs:download --default"
     }
   end
