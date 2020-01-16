@@ -17,10 +17,25 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
 
 ## Usage
 
+    sudo apt install curl node 
+
+    # firewall user  
+    
+    export http_proxy=http://127.0.0.1:1080 export https_proxy=$http_proxy export ALL_PROXY=$http_proxy
+
+    # rvm
+
+    \curl -sSL https://get.rvm.io | bash -s stable
+    
+    rvm install "ruby-2.6.5"
+    
 	git clone --recursive git@github.com:icai/docshub.git
 	cd docshub 
 
     cd ./devdocs 
+    gem install bundler
+    bundle install
+
     thor docs:download --all # download all file
 
     cd ..
@@ -31,6 +46,8 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
     
 
     cd ..
+
+    bundle install
     
     rake generate_html # generate jekyll base(sand) document
     rake copy_icons # copy docslogo icons to website
