@@ -1,5 +1,5 @@
 
-sh -c "cd ./devdocs && pwd && bundle install && bundle exec thor docs:download --default"
+rake devdocsci
 
 # bundle install
 # bundle exec thor docs:download --default # download all file
