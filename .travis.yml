@@ -34,6 +34,7 @@ install:
   - cd ..
   - cd ./docslogo
   - npm install -d
+  - cd ..
 
 
 script:

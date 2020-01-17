@@ -47,8 +47,21 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
 
     cd ..
 
+    # dev test
+
     bundle install
+
     
+    rake generate_test # generate jekyll base(sand) document
+    rake copy_icons # copy docslogo icons to website
+    rake copy_json # generate all json files
+    rake copy_test # generate all file to website
+    cd ./website
+    rake test_preview
+    
+
+    # deploy test
+    bundle install
     rake generate_html # generate jekyll base(sand) document
     rake copy_icons # copy docslogo icons to website
     rake copy_json # generate all json files

@@ -433,7 +433,7 @@ end
 
 
 desc "update all static files"
-task :copy_all => [:copy_asset, :copy_icons, :copy_json, :generate_html] do
+task :copy_all => [:copy_asset, :copy_icons, :copy_json] do
   # Rake::Task[:copy_html].invoke("html|jquery|css")
   # Rake::Task[:copy_test].invoke()
 end
@@ -442,13 +442,13 @@ end
 
 desc "generate html test"
 task :generate_test  do # => [:copy_json_js]
-  Rake::Task[:generate_html].invoke("godot~2.1")
+  Rake::Task[:generate_html].invoke("vuex")
 end
 
 
 desc "copy html static files for test"
 task :copy_test do
-  Rake::Task[:copy_html].invoke("godot~2.1")
+  Rake::Task[:copy_html].invoke("vuex")
 end
 
 desc "default"
