@@ -75,8 +75,10 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
 	cd ./website
     rake badlink # output badlink url, you need to add in the `_config.yml` file `include` options 
 	rake setup_gen # setup generate queue
+    rake gitinit
  	rake multi_gen_deploy # project release
     rake sitemap  # generate sitemap
+    rake push
 
  
 
