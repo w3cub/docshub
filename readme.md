@@ -21,7 +21,7 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
 
     # firewall user  
 
-    export http_proxy=http://127.0.0.1:1080 export https_proxy=$http_proxy export ALL_PROXY=$http_proxy
+    export http_proxy=http://127.0.0.1:1080 && export https_proxy=$http_proxy && export ALL_PROXY=$http_proxy
 
     # rvm
 
@@ -50,8 +50,6 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
     # dev test
 
     bundle install
-
-    
     rake generate_test # generate jekyll base(sand) document
     rake copy_icons # copy docslogo icons to website
     rake copy_json # generate all json files
