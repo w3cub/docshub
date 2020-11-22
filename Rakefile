@@ -242,7 +242,7 @@ def get_json_content(target)
   # $logger.info("+ " + target)
   entries.map! { |item|
     item["path"] = item["path"]
-    .sub($fix_link_regex, '')
+    .sub($fix_link_regex, '/')
     item
   }
   file
@@ -388,16 +388,17 @@ end
 desc "Copy docs.json to website"
 task :copy_index_json do
   # use meta.json is better
-  # @todo need to refactor
   filename = "docs.json"
-  data = JSON.parse( IO.read(docs_path + filename))
-  ignore = IO.read('.genonly')
-  ignore = ignore.split("\n")
-
+  genonly = IO.read('.genonly')
+  genonly = genonly.split("\n")
+  data = []
   del_target(json_target_path + filename)
-  data.select! do |item|
-    ss = ignore.include?(item["slug"])
+  genonly.each do |slug|
+    meta_path = docs_path + slug + '/meta.json'
+    next unless File.exist?(meta_path)
+    data << JSON.parse(IO.read(meta_path))
   end
+
   IO.write(json_target_path + filename, data.to_json)
   puts "Copy docs.json Done"
 end
