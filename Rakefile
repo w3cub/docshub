@@ -240,11 +240,11 @@ def get_json_content(target)
   file = JSON.parse(IO.read(target))
   entries = file["entries"]
   # $logger.info("+ " + target)
-  # entries.map! { |item|
-  #   item["path"] = item["path"]
-  #   .sub($fix_link_regex, '/')
-  #   item
-  # }
+  entries.map! { |item|
+    item["path"] = item["path"]
+    .sub($fix_link_regex, '')
+    item
+  }
   file
 end
 
@@ -387,6 +387,8 @@ end
 
 desc "Copy docs.json to website"
 task :copy_index_json do
+  # use meta.json is better
+  # @todo need to refactor
   filename = "docs.json"
   data = JSON.parse( IO.read(docs_path + filename))
   ignore = IO.read('.genonly')
@@ -467,7 +469,7 @@ end
 
 desc "copy html static files for test"
 task :copy_test do
-  Rake::Task[:copy_html].invoke("spring_boot")
+  Rake::Task[:copy_html].invoke("spring_boot|sequelize")
 end
 
 desc "default"
