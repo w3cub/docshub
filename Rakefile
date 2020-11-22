@@ -40,6 +40,7 @@ $docs_json_path = "#{json_target_path}docs.json"
 $debugTestDocs = "git|grunt|backbone|underscore|bower|typescript"
 
 
+# github pages supported
 $fix_link_regex = /(?=(?:(?!(\/|^)index).)*)((\/|^)index)?(?=#|$)/
 # https://regex101.com/r/gZ0mK1/1
 
@@ -100,33 +101,33 @@ def fix_doc_link(html, path, slug)
   # puts path
   doc = Nokogiri::HTML(html)
   # fix link
-  doc.css("a").each do |link|
-    if(link.attributes["href"])
-      href = link.attributes["href"].value
-      if(!(/^http(s)?/ =~ href))
-        if(/^([^#]|\.\.\/)/ =~ href)
-          if(!(/\w+\/index\.html/ =~path.sub(Regexp.new("{#docs_generate_target}"), ""))) #f
-            href = "../" + href
-          end
-        end
-        href = href.sub($fix_link_regex, (href[0,1] == "#" ? "" : "/"))
-        if /api/=~ href && slug == "bower"
-          href = href.sub(/api\//, "")
-        end
-        # if (/#/ =~ href)
-        #   href = href.gsub(/(\/[\w-\.]+)#/, '\1/#')
-        # elsif (!(/\.html$/ =~href))
-        #   href = href + '/'
-        # end
-        link.attributes["href"].value = href
-      else
-        link.set_attribute('target', '_blank')
-      end
-    end
-  end
+  # doc.css("a").each do |link|
+  #   if(link.attributes["href"])
+  #     href = link.attributes["href"].value
+  #     if(!(/^http(s)?/ =~ href))
+  #       if(/^([^#]|\.\.\/)/ =~ href)
+  #         if(!(/\w+\/index\.html/ =~path.sub(Regexp.new("{#docs_generate_target}"), ""))) #f
+  #           href = "../" + href
+  #         end
+  #       end
+  #       href = href.sub($fix_link_regex, (href[0,1] == "#" ? "" : "/"))
+  #       if /api/=~ href && slug == "bower"
+  #         href = href.sub(/api\//, "")
+  #       end
+  #       # if (/#/ =~ href)
+  #       #   href = href.gsub(/(\/[\w-\.]+)#/, '\1/#')
+  #       # elsif (!(/\.html$/ =~href))
+  #       #   href = href + '/'
+  #       # end
+  #       link.attributes["href"].value = href
+  #     else
+  #       link.set_attribute('target', '_blank')
+  #     end
+  #   end
+  # end
   slug = /docs-cache\/([\w~.]+)/.match(path)[1]
   view_path = /docs-cache\/[\w~.]+\/([\s\S]*?)?((\/\bindex\b)?\.html)$/.match(path)[1]
-  view_path = view_path.insert(-1, "/") if view_path[-1, 1] != "/" 
+  view_path = view_path.insert(-1, "/") if view_path[-1, 1] != "/"
   puts "view_path: " + view_path
   cdoc = get_doc(slug)
   slugtitle = cdoc["name"]  + (cdoc["version"] ? " " + cdoc["version"] : "")
@@ -220,11 +221,11 @@ def get_json_content(target)
   file = JSON.parse(IO.read(target))
   entries = file["entries"]
   # $logger.info("+ " + target)
-  entries.map! { |item|
-    item["path"] = item["path"]
-    .sub($fix_link_regex, '/')
-    item
-  }
+  # entries.map! { |item|
+  #   item["path"] = item["path"]
+  #   .sub($fix_link_regex, '/')
+  #   item
+  # }
   file
 end
 
@@ -442,13 +443,13 @@ end
 
 desc "generate html test"
 task :generate_test  do # => [:copy_json_js]
-  Rake::Task[:generate_html].invoke("vuex")
+  Rake::Task[:generate_html].invoke("spring_boot")
 end
 
 
 desc "copy html static files for test"
 task :copy_test do
-  Rake::Task[:copy_html].invoke("vuex")
+  Rake::Task[:copy_html].invoke("spring_boot")
 end
 
 desc "default"
