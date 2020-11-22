@@ -81,6 +81,9 @@ end
 def get_title(doc, slug, path, view_path, slugtitle)
   scrantitle = pagetitle = nil
   pagetitle = get_link_title(slug, view_path)
+  if pagetitle.blank?
+    pagetitle = get_link_title(slug, view_path + '/index')
+  end
   begin
     scrantitle = doc.css('h1 > text()').text.blank? ? doc.css('h1') && doc.css('h1').first && doc.css('h1').first.text : doc.css('h1 > text()').text
   rescue => exception

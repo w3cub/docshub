@@ -187,8 +187,6 @@ tensorflow_cpp~1.15
 tensorflow_cpp~2.3
 tensorflow~1.15
 tensorflow~2.3
-tensorflow~cpp
-tensorflow~guide
 tensorflow~python
 terraform
 trio
