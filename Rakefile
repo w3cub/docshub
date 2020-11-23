@@ -74,15 +74,22 @@ end
 
 def get_link_title(slug, path)
   file = $alldocs[slug] || get_json_content('devdocs/public/docs/'+ slug +'/index.json')
+  unless defined? $alldocs[slug]
+    $alldocs[slug] = file
+  end
   item = file["entries"].select{ |item| item["path"] == path }
   (item && item[0] && item[0]["name"]) || ""
 end
 
 def get_title(doc, slug, path, view_path, slugtitle)
+  # puts slug, view_path
   scrantitle = pagetitle = nil
   pagetitle = get_link_title(slug, view_path)
   if pagetitle.blank?
-    pagetitle = get_link_title(slug, view_path + '/index')
+    pagetitle = get_link_title(slug, view_path + '/')
+    if pagetitle.blank?
+      pagetitle = get_link_title(slug, view_path + '/index')
+    end
   end
   begin
     scrantitle = doc.css('h1 > text()').text.blank? ? doc.css('h1') && doc.css('h1').first && doc.css('h1').first.text : doc.css('h1 > text()').text
@@ -151,7 +158,7 @@ def fix_doc_link(html, path, slug)
     robj[:description] = "\"#{!description.nil? ? description.enco : title.enco}\""
     # robj[:permalink] = 
     robj[:isindex] = Regexp.new("([^\/]+)\/index\.html$") =~ path # #{slug}
-    small_words = %w(a an as but by en in of the to v v. via vs vs.)
+    small_words = %w(a an as but by en in of the to v v. via vs vs. - _)
     begin
       scrantitle = doc.css('h1 > text()').text.blank? ? doc.css('h1') && doc.css('h1').first && doc.css('h1').first.text : doc.css('h1 > text()').text
     rescue => exception
@@ -183,7 +190,7 @@ def handle_file(target)
     page.puts "slug: #{doc[:slug]}"
     page.puts "slugtitle: #{doc[:slugtitle]}"
     page.puts "type: #{type}"
-    page.puts "permalink: " + (doc[:isindex] ?  "/:path.html" : "/:path/")
+    # page.puts "permalink: " + (doc[:isindex] ?  "/:path.html" : "/:path")
     page.puts "---\n"
     page << "{% oopsraw %}\n"
     page << doc[:text]
@@ -193,7 +200,7 @@ end
 
 def generate_html(slug, source_path, target_path)
   files = Dir.glob(source_path + "**/*.html")
-  bar = TTY::ProgressBar.new(slug + " [:bar] :percent", width: 100, head: '>', total: files.size)
+  bar = TTY::ProgressBar.new("%-12s : [:bar] :percent " % slug , width: 100, head: '>', total: files.size)
   files.each do |source|
       target = source.sub(/^#{source_path}/, target_path)
       FileUtils.mkdir_p(File.dirname(target))
@@ -203,11 +210,11 @@ def generate_html(slug, source_path, target_path)
   end
 end
 
-def copy_html(source_path, target_path, debug=true)
-  if debug
+def copy_html(source_path, target_path, names=true)
+  if names
     Dir[source_path + "*"].each do |x|
-      if debug.kind_of?(Array)
-        matchs = Regexp.new("(" + debug.join("|") + ")$" ).match(x)
+      if names.kind_of?(Array)
+        matchs = Regexp.new("(" + names.join("|") + ")$" ).match(x)
       else
         matchs = Regexp.new("(" + $debugTestDocs + ")$").match(x)
       end
@@ -238,13 +245,13 @@ end
 
 def get_json_content(target)
   file = JSON.parse(IO.read(target))
-  entries = file["entries"]
+  # entries = file["entries"]
   # $logger.info("+ " + target)
-  entries.map! { |item|
-    item["path"] = item["path"]
-    .sub($fix_link_regex, '/')
-    item
-  }
+  # entries.map! { |item|
+  #   item["path"] = item["path"]
+  #   .sub($fix_link_regex, '/')
+  #   item
+  # }
   file
 end
 
@@ -365,16 +372,16 @@ task :sorthistory do |t, args|
 end
 
 desc "Copy docs html to website, if debug param is set, only copy a part of docs"
-task :copy_html, :debug do |t, args|
-  args.with_defaults(:debug=> true)
-  debug = args[:debug]
+task :copy_html, :names do |t, args|
+  args.with_defaults(:names=> true)
+  names = args[:names]
   del_target(docs_target_path)
-  if ["true", "false", true, false].include? debug
-    copy_html(docs_generate_target, docs_target_path, (debug == "true" || debug == true))
+  if ["true", "false", true, false].include? names
+    copy_html(docs_generate_target, docs_target_path, (names == "true" || names == true))
   else
-    if debug.is_a?(String) && debug.match(/(\w+\|?)*?/)
-      debug = debug.split("| ")
-      copy_html(docs_generate_target, docs_target_path, debug)
+    if names.is_a?(String) && names.match(/(\w+\\s?)*?/)
+      names = names.split(" ")
+      copy_html(docs_generate_target, docs_target_path, names)
     end
   end
 end
@@ -464,13 +471,13 @@ end
 
 desc "generate html test"
 task :generate_test  do # => [:copy_json_js]
-  Rake::Task[:generate_html].invoke("spring_boot")
+  Rake::Task[:generate_html].invoke("spring_boot sequelize")
 end
 
 
 desc "copy html static files for test"
 task :copy_test do
-  Rake::Task[:copy_html].invoke("spring_boot|sequelize")
+  Rake::Task[:copy_html].invoke("spring_boot sequelize")
 end
 
 desc "default"
