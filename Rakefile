@@ -371,7 +371,7 @@ task :sorthistory do |t, args|
   historyFile.close
 end
 
-desc "Copy docs html to website, if debug param is set, only copy a part of docs"
+desc "Deprecated, try to use website task. Copy docs html to website, if debug param is set, only copy a part of docs"
 task :copy_html, :names do |t, args|
   args.with_defaults(:names=> true)
   names = args[:names]
@@ -471,13 +471,13 @@ end
 
 desc "generate html test"
 task :generate_test  do # => [:copy_json_js]
-  Rake::Task[:generate_html].invoke("spring_boot sequelize")
+  Rake::Task[:generate_html].invoke("flask@1.1 flask@0.12")
 end
 
 
 desc "copy html static files for test"
 task :copy_test do
-  Rake::Task[:copy_html].invoke("spring_boot sequelize")
+  Rake::Task[:copy_html].invoke("flask~1.1 flask~0.12")
 end
 
 desc "default"

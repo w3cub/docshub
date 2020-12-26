@@ -83,6 +83,8 @@ django~2.2
 django~3.1
 docker~19
 dojo
+gtk~4.0
+gtk~3.24
 ansible~2.9
 ansible~2.10
 apache_http_server
@@ -96,6 +98,8 @@ erlang~21
 falcon~2.0
 fish~3.1
 flow
+flask~1.1
+flask~0.12
 gcc~10
 gcc~10_cpp
 gnu_cobol
@@ -141,7 +145,6 @@ matplotlib~3.1
 meteor~1.5
 minitest
 modernizr
-
 nginx
 nginx_lua_module
 nim
@@ -165,6 +168,10 @@ pygame
 pytorch
 q
 qt~5.15
+groovy~3.0
+haproxy~2.3
+werkzeug~1.0
+jinja~2.11
 rails~6.0
 ramda
 reactivex
@@ -210,10 +217,3 @@ xslt_xpath
 yarn
 yii~1.1
 yii~2.0
-gtk~4.0
-gtk~3.24
-groovy~3.0
-haproxy~2.3
-werkzeug~1.0
-jinja~2.11
-werkzeug~1.0
