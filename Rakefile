@@ -429,7 +429,7 @@ end
 
 
 desc "Copy JSON file include subTask [copy_json_js, copy_index_json]"
-task :copy_json => [:copy_json_js, :copy_index_json, :copy_credits] do
+task :copy_json => [:copy_index_json, :copy_json_js, :copy_credits] do
   puts "Copy JSON Done"
 end
 
