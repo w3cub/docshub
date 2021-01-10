@@ -471,13 +471,13 @@ end
 
 desc "generate html test"
 task :generate_test  do # => [:copy_json_js]
-  Rake::Task[:generate_html].invoke("flask@1.1 flask@0.12")
+  Rake::Task[:generate_html].invoke("bootstrap@5 ocaml ruby@3 less@4 node node@14_lts varnish php puppeteer redis")
 end
 
 
 desc "copy html static files for test"
 task :copy_test do
-  Rake::Task[:copy_html].invoke("flask~1.1 flask~0.12")
+  Rake::Task[:copy_html].invoke("varnish")
 end
 
 desc "default"

@@ -32,6 +32,7 @@ jqueryui
 jsdoc
 bootstrap~3
 bootstrap~4
+bootstrap~5
 bash
 bluebird
 bottle~0.12
@@ -44,6 +45,7 @@ kotlin
 mocha
 moment
 node
+node~14_lts
 node~12_lts
 sequelize
 mongoose
@@ -59,6 +61,7 @@ postgresql~13
 python~2.7
 python~3.9
 ruby~2.7
+ruby~3
 lua~5.4
 redis
 markdown
@@ -136,6 +139,7 @@ laravel~8
 leaflet~1.7
 less~2
 less~3
+less~4
 liquid
 lodash~4
 love
@@ -151,6 +155,7 @@ nim
 nokogiri
 npm
 numpy~1.17
+ocaml
 octave
 openjdk~11
 opentsdb
@@ -170,6 +175,7 @@ q
 qt~5.15
 groovy~3.0
 haproxy~2.3
+varnish
 werkzeug~1.0
 jinja~2.11
 rails~6.0
