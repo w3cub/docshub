@@ -88,15 +88,32 @@ def get_title(doc, slug, path, view_path, slugtitle)
   if pagetitle.blank?
     pagetitle = get_link_title(slug, view_path + '/')
     if pagetitle.blank?
-      pagetitle = get_link_title(slug, view_path + '/index')
+      pagetitle = get_link_title(slug, view_path + '.html')
+      if pagetitle.blank?
+        pagetitle = get_link_title(slug, view_path + '/index')
+      end
     end
   end
-  begin
-    scrantitle = doc.css('h1 > text()').text.blank? ? doc.css('h1') && doc.css('h1').first && doc.css('h1').first.text : doc.css('h1 > text()').text
-  rescue => exception
-    scrantitle = pagetitle
+
+  if !(path =~ /docs-cache\/([\w~.]+)\/index\.html/)
+    # puts pagetitle
+    if !pagetitle.blank?
+      title = pagetitle
+    else
+      begin
+        if doc.css('h1 > text()').text.blank?
+          scrantitle = doc.css('h1') && doc.css('h1').first && doc.css('h1').first.text
+        else
+          scrantitle = doc.css('h1 > text()').text
+        end
+      rescue => exception
+        scrantitle = pagetitle
+      end
+      title = scrantitle
+    end
+  else
+    title = ""
   end
-  title = !(path =~ /docs-cache\/([\w~.]+)\/index\.html/) ? (!pagetitle.blank? ? pagetitle : scrantitle): ""
   if title.blank? 
     title = slugtitle + " documentation"
   else
@@ -144,7 +161,6 @@ def fix_doc_link(html, path, slug)
   slug = /docs-cache\/([\w~.]+)/.match(path)[1]
   view_path = /docs-cache\/[\w~.]+\/([\s\S]*?)?((\/\bindex\b)?\.html)$/.match(path)[1]
   # view_path = view_path.insert(-1, "/") if view_path[-1, 1] != "/"
-  # puts "view_path: " + view_path
   begin  
     cdoc = get_doc(slug)
     slugtitle = cdoc["name"]  + (cdoc["version"] ? " " + cdoc["version"] : "")
@@ -171,7 +187,7 @@ def fix_doc_link(html, path, slug)
     puts slug + " doc catch error: "   
     puts "on path: " + path
     puts "-----------"
-    puts e
+    puts e.backtrace.join("\n")
   end
 end
 

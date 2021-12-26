@@ -1,3 +1,10 @@
+<!--
+ * @Author: Terry Cai
+ * @Date: 2020-11-20 23:54:23
+ * @LastEditors: Terry Cai
+ * @LastEditTime: 2021-12-26 22:04:33
+ * @Description: Do not edit
+-->
 # Docshub
 W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
 
@@ -37,6 +44,8 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
     bundle install
 
     thor docs:download --all # download all file
+
+    thor sprites:generate
 
     cd ..
     cd ./docslogo
