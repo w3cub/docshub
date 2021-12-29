@@ -110,8 +110,10 @@ docker~19
 dojo
 gtk~4.0
 gtk~3.24
-ansible~2.9
+ansible
+ansible~2.11
 ansible~2.10
+ansible~2.9
 apache_http_server
 apache_pig~0.17
 drupal~8
@@ -125,6 +127,8 @@ fish~3.1
 flow
 flask~1.1
 flask~0.12
+gcc~11
+gcc~11_cpp
 gcc~10
 gcc~10_cpp
 gnu_cobol
@@ -196,6 +200,7 @@ pytorch
 q
 qt~5.15
 groovy~3.0
+haproxy~2.4
 haproxy~2.3
 varnish
 werkzeug~1.0
@@ -226,10 +231,12 @@ statsmodels
 svg
 symfony~4.1
 tcl_tk
-tensorflow_cpp~1.15
+tensorflow_cpp~2.4
 tensorflow_cpp~2.3
-tensorflow~1.15
+tensorflow_cpp~1.15
+tensorflow~2.4
 tensorflow~2.3
+tensorflow~1.15
 tensorflow~python
 tensorflow~guide
 terraform
