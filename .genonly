@@ -136,7 +136,6 @@ gcc~10
 gcc~10_cpp
 gnu_cobol
 gnu_fortran~10
-gnu_make
 gnuplot
 godot~3.2
 graphite
