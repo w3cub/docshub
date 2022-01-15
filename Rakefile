@@ -453,6 +453,7 @@ desc "Copy icons file to website"
 task :copy_icons do
   FileUtils.rm_rf(Dir.glob(icons_target_path+ "*"))
   FileUtils.cp_r(icons_source_path + ".", icons_target_path)
+  puts "Copy all index-page icons Done"
 end
 
 

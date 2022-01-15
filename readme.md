@@ -2,7 +2,7 @@
  * @Author: Terry Cai
  * @Date: 2020-11-20 23:54:23
  * @LastEditors: Terry Cai
- * @LastEditTime: 2021-12-26 22:04:33
+ * @LastEditTime: 2022-01-15 20:47:44
  * @Description: Do not edit
 -->
 # Docshub
@@ -24,70 +24,75 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
 
 ## Usage
 
-    sudo apt install curl nodejs
+```shell
+sudo apt install curl nodejs
 
-    # firewall user  
+# firewall user  
 
-    export http_proxy=http://127.0.0.1:1080 && export https_proxy=$http_proxy && export ALL_PROXY=$http_proxy
+export http_proxy=http://127.0.0.1:1080 && export https_proxy=$http_proxy && export ALL_PROXY=$http_proxy
 
-    # rvm
+# rvm
 
-    \curl -sSL https://get.rvm.io | bash -s stable
-    
-    rvm install "ruby-2.6.5"
-    
-	git clone --recursive git@github.com:icai/docshub.git
-	cd docshub 
+\curl -sSL https://get.rvm.io | bash -s stable
 
-    cd ./devdocs 
-    gem install bundler
-    bundle install
+rvm install "ruby-2.6.5"
 
-    thor docs:download --all # download all file
+git clone --recursive git@github.com:icai/docshub.git
+cd docshub 
 
-    thor sprites:generate
+cd ./devdocs 
+gem install bundler
+bundle install
 
-    cd ..
-    cd ./docslogo
-    sudo apt-get install imagemagick graphicsmagick
-    npm install -d
-    gulp beauty
-    
+thor docs:download --all # download all file
 
-    cd ..
+thor sprites:generate
 
-    # dev test
+cd ..
+cd ./docslogo
+sudo apt-get install imagemagick graphicsmagick
+npm install -d
+gulp beauty
 
-    bundle install
-    rake generate_test # generate jekyll base(sand) document
-    rake copy_icons # copy docslogo icons to website
-    rake copy_json # generate all json files
-    rake copy_test # generate all file to website
-    cd ./website
-    rake test_preview
-    
 
-    # deploy test
-    bundle install
-    rake generate_html # generate jekyll base(sand) document
-    rake copy_icons # copy docslogo icons to website
-    rake copy_json # generate all json files
-    rake copy_allhtml # generate all file to website
-    cd ./website
-    rake test_preview
+cd ..
 
+# dev test
+
+# try diff and synchronize the javascript, image and stylesheet files
+
+bundle install
+rake copy_json # generate all json files
+rake copy_all # to copy the other file
+    # - rake copy_icons # copy docslogo icons to website
+    # - rake copy_json # generate all json files
+rake copy_test # generate all file to website
+cd ./website
+rake erb # icon file
+rake test_preview
+
+# deploy test
+bundle install
+rake generate_html # generate jekyll base(sand) document
+rake copy_icons # copy docslogo icons to website
+rake copy_json # generate all json files
+rake copy_allhtml # generate all file to website
+cd ./website
+rake test_preview
+```
 
 ## Release
 
-	cd ./website
-    rake badlink # output badlink url, you need to add in the `_config.yml` file `include` options 
-	rake setup_gen # setup generate queue
-    rake gitinit
- 	rake multi_gen_deploy # project release
-    rake sitemap  # generate sitemap
-    rake push
-
- 
+```shell
+cd ./website
+rake badlink # output badlink url, you need to add in the `_config.yml` file `include` options 
+rake erb
+rake setup_gen  # [option] setup generate queue
+rake gitinit # [option]
+rake multi_gen_deploy # project release
+rake sitemap  # generate sitemap
+rake push
+```
 
 
 ## License

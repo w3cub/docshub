@@ -17,6 +17,7 @@ i3
 esbuild
 latex
 react
+react_router
 redux
 react_bootstrap
 redux~3
@@ -33,11 +34,12 @@ javascript
 dom
 dom_events
 node
-typescript
 jekyll
 async
 babel~6
 babel~7
+kubernetes
+gnu_make
 underscore
 vue_router
 vuex
@@ -102,6 +104,7 @@ cypress
 d
 d3~5
 dart~2
+deno
 django_rest_framework
 django~1.11
 django~2.2
@@ -133,6 +136,7 @@ gcc~10
 gcc~10_cpp
 gnu_cobol
 gnu_fortran~10
+gnu_make
 gnuplot
 godot~3.2
 graphite
@@ -171,6 +175,7 @@ lodash~4
 love
 mariadb
 marionette~4
+matplotlib~3.5
 matplotlib~3.1
 meteor~1.5
 minitest
@@ -192,12 +197,14 @@ phalcon~2
 phalcon~3
 phaser
 phoenix
+point_cloud_library
 pony
 pug
 puppeteer
 pygame
 pytorch
 q
+qt
 qt~5.15
 groovy~3.0
 haproxy~2.4
@@ -205,6 +212,7 @@ haproxy~2.3
 varnish
 werkzeug~1.0
 jinja~2.11
+rails~7.0
 rails~6.0
 ramda
 reactivex
