@@ -31,8 +31,9 @@ docs_target_path = "#{website_path}/source/_docs/"
 json_target_path = "#{website_path}/source/_data/"
 json_js_target_path = "#{website_path}/source/json/"
 
-icons_source_path = "#{icons_path}/dist/beauty/72x72/"
-icons_target_path = "#{website_path}/source/images/docs/"
+# css sprite icons
+icons_source_path = "#{icons_path}/dist/sprite/"
+icons_target_path = "#{website_path}/source/assets/images/logo/"
 
 
 credits_path = "#{devdocs_path}/assets/javascripts/templates/pages/about_tmpl.coffee"
