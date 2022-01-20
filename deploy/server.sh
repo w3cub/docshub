@@ -137,9 +137,9 @@ http {
             try_files \$uri.html \$uri/ =404;
         }
 
-        location ~* /\?sync$ {
+        location /sync {
             if (\$host = $DOMAIN) {
-                return 404;
+               return 404;
             }
             content_by_lua_block {
                os.execute("sh /opt/deploy/sync.sh")
