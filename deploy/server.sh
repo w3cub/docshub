@@ -14,9 +14,9 @@ ubuntu=ubuntu
 src_dir=/usr/local/src
 cur_dir=$(cd "$(dirname "$0")"; pwd)
 
-DOMAIN=docs.w3cub.com
+DOMAIN=t.w3cub.com
 
-githubsource=https://github.com/w3cub/w3cub-release-202011
+githubsource=https://github.com/w3cub/w3cubTools-alpha
 
 
 if [ "$OS_FLAVOR" = "$centos" ] && [ "$VERSION" -eq 7 ]; then

@@ -3,7 +3,7 @@
  # Synchronized with github pages
 ### 
 
-githubsource=https://github.com/w3cub/w3cub-release-202011
+githubsource=https://github.com/w3cub/w3cubTools-alpha
 
 
 echo "::Add a job lock file::"
