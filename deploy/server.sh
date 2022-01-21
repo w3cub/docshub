@@ -88,8 +88,6 @@ tar -zxvf nginx-$nginx_version.tar.gz
 cd nginx-$nginx_version/ || exit
 
 ./configure \
---user=nobody \
---group=nobody \
 --with-ld-opt="-Wl,-rpath,$LUAJIT_LIB" \
 --sbin-path=/usr/bin/nginx \
 --prefix=/usr/local/nginx \
@@ -116,7 +114,7 @@ nginx -V || exit
 
 echo "::Create systemd service::"
 
-cat <<EOT >> /lib/systemd/system/nginx.service
+cat <<EOT >> /lib/systemd/system/nginx
 [Unit]
 Description=The NGINX HTTP and reverse proxy server
 After=syslog.target network.target remote-fs.target nss-lookup.target
@@ -182,6 +180,8 @@ wget https://raw.githubusercontent.com/w3cub/docshub/master/deploy/sync.sh -O sy
 
 
 echo "127.0.0.1 $DOMAIN" >> /etc/hosts
+
+iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
 
 systemctl enable nginx && systemctl daemon-reload &&  systemctl start nginx
 
