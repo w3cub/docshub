@@ -20,23 +20,24 @@ githubsource=https://github.com/w3cub/w3cubTools-alpha
 
 
 if [ "$OS_FLAVOR" = "$centos" ] && [ "$VERSION" -eq 7 ]; then
-	echo "----------- Installing Dependacy for CentOS 7 ----------------- "
+	echo "::Installing Dependacy for CentOS 7::"
 	yum groupinstall "Development Tools" -y
     yum install pcre pcre-devel zlib zlib-devel openssl openssl-devel -y
-    yum install git wget
+    yum install git wget -y
     yum install gcc gcc-c++  make automake autoconf -y
 
 elif [ "$OS_FLAVOR" = "$ubuntu" ] && [ "${VERSION%%.*}" -ge 15 ]; then
     echo " Installing Dependacy for Ubuntu $VERSION"
     apt-get install build-essential -y # for gcc
     apt-get install libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev -y
-    apt-get install git wget
+    apt-get install git wget -y
     apt-get isntall make automake autoconf -y
 else
 
 	echo " Unsupported OS VERSION ...Try with CentOS 7 or ubuntu 15+ "
 fi
 
+cd $src_dir
 
 if [ ! -f $src_dir/LuaJIT-2.1.0-beta3.tar.gz ] ; then
 	`wget  https://luajit.org/download/LuaJIT-2.1.0-beta3.tar.gz`
@@ -48,12 +49,18 @@ fi
 
 if [ ! -d /usr/local/luajit ] ; then
 	cd $src_dir/LuaJIT-2.1.0-beta3
-	make && make install PREFIX=/usr/local/luajit
-fi 
+	make PREFIX=/usr/local/luajit && make install PREFIX=/usr/local/luajit
+fi
+
+
+ln -sf /usr/local/luajit/bin/luajit-2.1.0-beta3 /usr/local/bin/luajit
+
 
 
 export LUAJIT_LIB=/usr/local/luajit/lib
 export LUAJIT_INC=/usr/local/luajit/include/luajit-2.1
+
+luajit -v || exit
 
 cd $src_dir
 
@@ -80,21 +87,30 @@ tar -zxvf nginx-$nginx_version.tar.gz
 
 cd nginx-$nginx_version/ || exit
 
-./configure --sbin-path=/usr/bin/nginx \
+./configure \
+--user=nobody \
+--group=nobody \
+--with-ld-opt="-Wl,-rpath,$LUAJIT_LIB" \
+--sbin-path=/usr/bin/nginx \
+--prefix=/usr/local/nginx \
 --conf-path=/etc/nginx/nginx.conf \
 --error-log-path=/var/log/nginx/error.log \
 --http-log-path=/var/log/nginx/access.log \
---with-pcre \
 --pid-path=/var/run/nginx.pid \
 --add-module=/usr/local/src/ngx_devel_kit \
 --add-module=/usr/local/src/lua-nginx-module \
---with-http_ssl_module
+--with-http_stub_status_module \
+--with-http_ssl_module \
+--with-http_v2_module \
+--with-http_gzip_static_module \
+--with-http_sub_module
 
-make && make install
+make -j2 && make install
 
 echo "::Check the configuration file exists or not::"
 
 ls -lsrt /usr/bin/nginx || exit
+
 nginx -V || exit
 
 
@@ -117,7 +133,9 @@ WantedBy=multi-user.target
 EOT
 
 echo "::Config Nginx::"
-sudo sh -c 'echo "
+
+
+cat >/etc/nginx/nginx.conf << EOF
 worker_processes  auto;
 events {
     worker_connections  1024;
@@ -132,6 +150,11 @@ http {
         server_name  $DOMAIN;
         root   /opt/www;
         error_page 404 /404.html;
+
+        gzip             on;
+        gzip_comp_level  3;
+        gzip_types       text/plain text/css application/javascript image/*;
+
         location / {
             index  index.html index.htm;
             try_files \$uri.html \$uri/ =404;
@@ -146,7 +169,8 @@ http {
             }
         }
     }
-}" > /etc/nginx/nginx.conf'
+}
+EOF
 
 
 echo "::Download nginx request shell::"
@@ -157,16 +181,12 @@ cd /opt/deploy
 wget https://raw.githubusercontent.com/w3cub/docshub/master/deploy/sync.sh -O sync.sh
 
 
-
-
-echo "::::"
+echo "127.0.0.1 $DOMAIN" >> /etc/hosts
 
 systemctl enable nginx && systemctl daemon-reload &&  systemctl start nginx
 
 systemctl status nginx
 
-
-echo "127.0.0.1 $DOMAIN" >> /etc/hosts
 
 
 cd /opt
