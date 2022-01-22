@@ -227,12 +227,14 @@ http {
         }
 
         location /sync {
+            default_type 'text/html';
             if (\$host = $DOMAIN) {
                return 404;
             }
             content_by_lua_block {
-            
                ngx.say("<h1>Hello, World!</h1>")
+               ngx.eof()
+               os.execute("sh /opt/deploy/sync.sh")
             }
         }
     }
@@ -265,7 +267,7 @@ wget $githubsource/tarball/master -O www.tar.gz
 mkdir -p www && tar -zxvf www.tar.gz -C www --strip-components=1
 
 
-SUB=W3cubDocs
+SUB=W3cub
 CONTENT=$(wget 127.0.0.1 -q -O -)
 if [[ "$CONTENT" == *"$SUB"* ]]; then
   echo "Server is OK, bye."

@@ -227,12 +227,14 @@ http {
         }
 
         location /sync {
+            default_type 'text/html';
             if (\$host = $DOMAIN) {
                return 404;
             }
             content_by_lua_block {
-
                ngx.say("<h1>Hello, World!</h1>")
+               ngx.eof()
+               os.execute("sh /opt/deploy/sync.sh")
             }
         }
     }
