@@ -17,13 +17,13 @@ LUA_VERSION=5.1
 LUA_JIT_VERSION=2.1-20220111
 LUA_RESTY_VERSION=0.1.22
 LUA_RESTY_LRU_VERSION=0.11
+NGINX_VERSION=1.20.2  # Set the version you want to install
 NGINX_PREFIX=/usr/local/nginx
 WORKDIR=/usr/local/src
 cur_dir=$(cd "$(dirname "$0")"; pwd)
 
 DOMAIN=t.w3cub.com
-
-githubsource=https://github.com/w3cub/w3cubTools-alpha
+WWW_SOURCE=https://github.com/w3cub/w3cubTools-alpha
 
 
 if [ "$OS_FLAVOR" = "$centos" ] && [ "$VERSION" -eq 7 ]; then
@@ -44,19 +44,59 @@ else
 	echo " Unsupported OS VERSION ...Try with CentOS 7 or ubuntu 15+ "
 fi
 
+# stop nginx
+systemctl stop nginx 
+systemctl disable nginx
+
+# remove all source
+rm -rf $WORKDIR/*
+
+#  remove old nginx
+rm -rf /usr/local/nginx && rm -rf /usr/local/sbin/nginx
+rm -rf /etc/nginx
+rm -rf /etc/nginx/conf.d
+
+rm -rf /usr/local/luajit
+rm -rf /usr/local/lib/lua/5.1
+
+
+# remove log
+rm -rf /usr/local/nginx
+
+rm -rf /var/log/nginx/error.log
+rm -rf /var/log/nginx/access.log
+
 
 
 cd $WORKDIR
 
-
-wget -O lua.tar.gz https://github.com/openresty/luajit2/archive/v${LUA_JIT_VERSION}.tar.gz
-tar -xf lua.tar.gz
+wget -O luajit2.tar.gz https://github.com/openresty/luajit2/archive/v${LUA_JIT_VERSION}.tar.gz
+tar -xf luajit2.tar.gz
 cd luajit2-${LUA_JIT_VERSION}
 make && make install
 
+# ln -sf /usr/local/luajit/bin/luajit-2.1.0-beta3 /usr/local/bin/luajit
 
-export LUAJIT_LIB=/usr/local/lib
-export LUAJIT_INC=/usr/local/include/luajit-2.1
+
+cd $WORKDIR
+
+wget -O lua-resty.tar.gz https://github.com/openresty/lua-resty-core/archive/v${LUA_RESTY_VERSION}.tar.gz
+tar -xf lua-resty.tar.gz
+cd lua-resty-core-${LUA_RESTY_VERSION}
+sed -i "s/#LUA_VERSION/LUA_VERSION/" Makefile
+make && make install
+
+
+
+
+cd $WORKDIR
+
+wget -O lua-resty-lru.tar.gz https://github.com/openresty/lua-resty-lrucache/archive/v${LUA_RESTY_LRU_VERSION}.tar.gz
+tar -xf lua-resty-lru.tar.gz
+cd lua-resty-lrucache-${LUA_RESTY_LRU_VERSION}
+sed -i "/PREFIX ?=/i LUA_VERSION := 5.1" Makefile
+make && make install
+
 
 
 cd $WORKDIR
@@ -73,24 +113,28 @@ wget https://github.com/openresty/lua-nginx-module/archive/v${NGINX_LUA_VERSION}
 
 mkdir -p lua-nginx-module && tar -zxvf lua-nginx-module.tar.gz -C lua-nginx-module --strip-components=1
 
-
 cd $WORKDIR
-
 
 wget https://github.com/openresty/echo-nginx-module/archive/v${NGINX_ECHO_VERSION}.tar.gz -O echo-nginx-module.tar.gz
 
 mkdir -p echo-nginx-module && tar -zxvf echo-nginx-module.tar.gz -C echo-nginx-module --strip-components=1
 
+
 cd $WORKDIR
 
 
-nginx_version=1.20.2  # Set the version you want to install
+wget http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -O nginx-$NGINX_VERSION.tar.gz
 
-wget http://nginx.org/download/nginx-$nginx_version.tar.gz -O nginx-$nginx_version.tar.gz
+tar -zxvf nginx-$NGINX_VERSION.tar.gz
 
-tar -zxvf nginx-$nginx_version.tar.gz
+cd nginx-$NGINX_VERSION/ || exit
 
-cd nginx-$nginx_version/ || exit
+mkdir -p /run
+mkdir -p /var/run
+mkdir -p /var/log/nginx/
+
+export LUAJIT_LIB=/usr/local/lib
+export LUAJIT_INC=/usr/local/include/luajit-2.1
 
 ./configure \
 --with-ld-opt="-Wl,-rpath,$LUAJIT_LIB" \
@@ -98,7 +142,8 @@ cd nginx-$nginx_version/ || exit
 --conf-path=/etc/nginx/nginx.conf \
 --error-log-path=/var/log/nginx/error.log \
 --http-log-path=/var/log/nginx/access.log \
---pid-path=/var/run/nginx.pid \
+--pid-path=/run/nginx.pid \
+--lock-path=/var/lock/nginx.lock \
 --add-module=$WORKDIR/ngx_devel_kit \
 --add-module=$WORKDIR/lua-nginx-module \
 --add-module=$WORKDIR/echo-nginx-module \
@@ -117,23 +162,6 @@ ls -lsrt /usr/bin/nginx || exit
 nginx -V || exit
 
 
-cd $WORKDIR
-
-wget -O lua-resty.tar.gz https://github.com/openresty/lua-resty-core/archive/v${LUA_RESTY_VERSION}.tar.gz
-tar -xf lua-resty.tar.gz
-cd lua-resty-core-${LUA_RESTY_VERSION}
-sed -i "s/#LUA_VERSION/LUA_VERSION/" Makefile
-make install PREFIX=$NGINX_PREFIX
-
-
-cd $WORKDIR
-
-wget -O lua-resty-lru.tar.gz https://github.com/openresty/lua-resty-lrucache/archive/v${LUA_RESTY_LRU_VERSION}.tar.gz
-tar -xf lua-resty-lru.tar.gz
-cd lua-resty-lrucache-${LUA_RESTY_LRU_VERSION}
-sed -i "/PREFIX ?=/i LUA_VERSION := 5.1" Makefile
-make install PREFIX=$NGINX_PREFIX
-
 systemctl stop nginx 
 systemctl disable nginx 
 
@@ -149,26 +177,36 @@ Wants=network-online.target
 
 [Service]
 Type=forking
-PIDFile=/var/run/nginx.pid
+PIDFile=/run/nginx.pid
 ExecStartPre=/usr/bin/nginx -t
 ExecStart=/usr/bin/nginx
 ExecReload=/usr/bin/nginx -s reload
 ExecStop=/bin/kill -s QUIT $MAINPID
 PrivateTmp=true
+
 [Install]
 WantedBy=multi-user.target
+EOT
+
+
+mkdir -p /etc/systemd/system/nginx.service.d
+
+cat > /etc/systemd/system/nginx.service.d/override.conf <<EOT
+[Service]
+ExecStartPost=/bin/sleep 0.1
 EOT
 
 echo "::Config Nginx::"
 
 
 cat >/etc/nginx/nginx.conf << EOF
+user root;
 worker_processes  auto;
 events {
     worker_connections  1024;
 }
 http {
-    lua_package_path "/usr/local/lib/lua/?.lua;;";
+    lua_package_path "/usr/local/lib/lua/$LUA_VERSION/?.lua;;";
     include       mime.types;
     default_type  application/octet-stream;
     sendfile        on;
@@ -193,17 +231,13 @@ http {
                return 404;
             }
             content_by_lua_block {
-               ngx.header.content_type = "text/html" 
-               ngx.say('it's sync')
-               ngx.exit(200)
-               ngx.eof()
-               os.execute("sh /opt/deploy/sync.sh")
+            
+               ngx.say("<h1>Hello, World!</h1>")
             }
         }
     }
 }
 EOF
-
 
 echo "::Download nginx request shell::"
 
@@ -211,6 +245,7 @@ echo "::Download nginx request shell::"
 echo "127.0.0.1 $DOMAIN" >> /etc/hosts
 
 iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+
 
 mkdir -p /opt/www
 
