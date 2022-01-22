@@ -163,6 +163,7 @@ echo "::Config Nginx::"
 
 
 cat >/etc/nginx/nginx.conf << EOF
+user root;
 worker_processes  auto;
 events {
     worker_connections  1024;
@@ -194,8 +195,7 @@ http {
             }
             content_by_lua_block {
                ngx.header.content_type = "text/html" 
-               ngx.say('it's sync')
-               ngx.exit(200)
+               ngx.say("<h1>Hello, World!</h1>")
                ngx.eof()
                os.execute("sh /opt/deploy/sync.sh")
             }
@@ -203,7 +203,6 @@ http {
     }
 }
 EOF
-
 
 echo "::Download nginx request shell::"
 
@@ -221,18 +220,3 @@ echo "it's OK" > /opt/www/index.html
 systemctl enable nginx && systemctl daemon-reload &&  systemctl start nginx
 
 systemctl status nginx
-
-
-
-cd /opt
-
-wget $githubsource/tarball/master -O www.tar.gz
-mkdir -p www && tar -zxvf www.tar.gz -C www --strip-components=1
-
-
-SUB=W3cubDocs
-CONTENT=$(wget 127.0.0.1 -q -O -)
-if [[ "$CONTENT" == *"$SUB"* ]]; then
-  echo "Server is OK, bye."
-  exit
-fi
