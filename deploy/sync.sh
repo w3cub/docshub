@@ -30,11 +30,18 @@ wget $WWW_SOURCE/tarball/gh-pages -O www.tar.gz
 
 cd $WORKDIR
 
+
+if [ ! -d wwwtmp ]; then
+   mkdir wwwtmp
+fi
+# long time to unzip
+tar -xf www.tar.gz -C wwwtmp --strip-components=1
+
 if [ -d $WORKDIR/www ]; then
    mv www www_backup$(date +%Y%m%d%H%M%S)
 fi
-tar -zxvf www.tar.gz -C www --strip-components=1
 
+mv wwwtmp www
 
 
 echo "::Job complete, remove lock file::"
