@@ -35,7 +35,7 @@ if [ ! -d wwwtmp ]; then
    mkdir wwwtmp
 fi
 # long time to unzip
-tar -xf www.tar.gz -C wwwtmp --strip-components=1
+tar -zxf www.tar.gz -C wwwtmp --strip-components=1
 
 if [ -d $WORKDIR/www ]; then
    mv www www_backup$(date +%Y%m%d%H%M%S)
