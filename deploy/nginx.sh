@@ -25,6 +25,7 @@ ROOTDOMAIN=w3cub.com
 EMAIL=gidcai@gmail.com
 DOMAIN=docs.w3cub.com
 WWW_SOURCE=https://github.com/w3cub/w3cub-release-202011
+HTTP_ONLY=true
 
 
 
@@ -200,10 +201,55 @@ EOT
 
 echo "::Config Nginx::"
 
+config_nginx() {
+    if [ ! -f /etc/nginx/nginx.conf ]; then
+        echo "::Create nginx.conf::"
+        if [ "$HTTP_ONLY" = "true" ]; then
+            cat >/etc/nginx/nginx.conf << EOF
+user root;
+worker_processes  auto;
+events {
+    worker_connections  1024;
+}
+http {
+    lua_package_path "/usr/local/lib/lua/$LUA_VERSION/?.lua;;";
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile        on;
+    keepalive_timeout  65;
+    server {
+        listen       80;
+        server_name  $DOMAIN;
+        root   /opt/www;
+        error_page 404 /404.html;
 
-certbot certonly --nginx --agree-tos -n -d $DOMAIN --email $EMAIL
+        gzip             on;
+        gzip_comp_level  3;
+        gzip_types       text/plain text/css application/javascript image/*;
 
-cat >/etc/nginx/nginx.conf << EOF
+        location / {
+            index  index.html index.htm;
+            try_files \$uri \$uri/index.html \$uri.html =404;
+        }
+
+        location /sync {
+            default_type 'text/html';
+            if (\$host = $DOMAIN) {
+               return 404;
+            }
+            content_by_lua_block {
+               ngx.say("<h1>Hello, World!</h1>")
+               ngx.eof()
+               os.execute("sh /opt/deploy/sync.sh")
+            }
+        }
+    }
+}
+EOF
+        else
+
+            certbot certonly --nginx --agree-tos -n -d $DOMAIN --email $EMAIL
+            cat >/etc/nginx/nginx.conf << EOF
 user root;
 worker_processes  auto;
 events {
@@ -254,8 +300,8 @@ http {
             }
         }
 
-        ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem; # managed by Certbot
-        ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem; # managed by Certbot
+        ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem; # managed by Certbot
+        ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem; # managed by Certbot
         include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
         ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
     }
@@ -267,13 +313,20 @@ http {
     }
 }
 EOF
+        fi
+    fi  
+
+}
+
+config_nginx
+
 
 echo "::Download nginx request shell::"
 
 
 echo "127.0.0.1 $DOMAIN" >> /etc/hosts
 
-iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+
 
 mkdir -p /opt/www
 
