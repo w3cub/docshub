@@ -3,34 +3,38 @@
  # Synchronized with github pages
 ### 
 
-githubsource=https://github.com/w3cub/w3cubTools-alpha
+WORKDIR=/opt
+WWW_SOURCE=https://github.com/w3cub/w3cub-release-202011
+
 
 
 echo "::Add a job lock file::"
 
 if ! mkdir /tmp/dsync.lock 2>/dev/null; then
     echo "job is already running." >&2
-    exit 1
+    exit
 fi
 
 
-echo "::Downloading w3cub-release-202011::"
+echo "::Downloading w3cub-release::"
 
 
-cd /opt
+cd $WORKDIR
 
-if [ -f www.tar.gz ]; then
+if [ -f $WORKDIR/www.tar.gz ]; then
     echo "file exists, remove it."
     rm -rf www.tar.gz
 fi
-wget $githubsource/tarball/master -O www.tar.gz
+wget $WWW_SOURCE/tarball/gh-pages -O www.tar.gz
 
-if [ ! -d wwwtmp ]; then
-   mkdir wwwtmp
+
+cd $WORKDIR
+
+if [ -d $WORKDIR/www ]; then
+   mv www www_backup$(date +%Y%m%d%H%M%S)
 fi
-tar -xvf www.tar.gz -C wwwtmp --strip-components=1
-mv wwwtmp/* /opt/www/
-rm -rf wwwtmp
+tar -zxvf www.tar.gz -C www --strip-components=1
+
 
 
 echo "::Job complete, remove lock file::"

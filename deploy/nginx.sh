@@ -21,9 +21,11 @@ NGINX_VERSION=1.20.2  # Set the version you want to install
 NGINX_PREFIX=/usr/local/nginx
 WORKDIR=/usr/local/src
 cur_dir=$(cd "$(dirname "$0")"; pwd)
+ROOTDOMAIN=w3cub.com
+EMAIL=gidcai@gmail.com
+DOMAIN=docs.w3cub.com
+WWW_SOURCE=https://github.com/w3cub/w3cub-release-202011
 
-DOMAIN=t.w3cub.com
-WWW_SOURCE=https://github.com/w3cub/w3cubTools-alpha
 
 
 if [ "$OS_FLAVOR" = "$centos" ] && [ "$VERSION" -eq 7 ]; then
@@ -199,6 +201,8 @@ EOT
 echo "::Config Nginx::"
 
 
+certbot certonly --nginx --agree-tos -n -d $DOMAIN --email $EMAIL
+
 cat >/etc/nginx/nginx.conf << EOF
 user root;
 worker_processes  auto;
@@ -212,7 +216,7 @@ http {
     sendfile        on;
     keepalive_timeout  65;
     server {
-        listen       80;
+        listen 443 ssl; # managed by Certbot
         server_name  $DOMAIN;
         root   /opt/www;
         error_page 404 /404.html;
@@ -220,6 +224,18 @@ http {
         gzip             on;
         gzip_comp_level  3;
         gzip_types       text/plain text/css application/javascript image/*;
+        
+        location ~ /\. {
+            return 404;
+            access_log off;
+            log_not_found off;
+        }
+
+        location ~* /(README|README\.md) {
+            return 404;
+            access_log off;
+            log_not_found off;
+        }
 
         location / {
             index  index.html index.htm;
@@ -229,14 +245,25 @@ http {
         location /sync {
             default_type 'text/html';
             if (\$host = $DOMAIN) {
-               return 404;
+                return 404;
             }
             content_by_lua_block {
-               ngx.say("<h1>Hello, World!</h1>")
-               ngx.eof()
-               os.execute("sh /opt/deploy/sync.sh")
+                ngx.say("<h1>Hello, World!</h1>")
+                ngx.eof()
+                os.execute("sh /opt/deploy/sync.sh")
             }
         }
+
+        ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem; # managed by Certbot
+        ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem; # managed by Certbot
+        include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+    }
+
+    server {
+        listen          80;
+        server_name     $DOMAIN;
+        return          301 https://\$server_name\$request_uri;
     }
 }
 EOF
