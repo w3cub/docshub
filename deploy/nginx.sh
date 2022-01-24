@@ -227,6 +227,18 @@ http {
         gzip_comp_level  3;
         gzip_types       text/plain text/css application/javascript image/*;
 
+        location ~ /\. {
+            return 404;
+            access_log off;
+            log_not_found off;
+        }
+        
+        location ~* /(README|README\.md) {
+            return 404;
+            access_log off;
+            log_not_found off;
+        }
+
         location / {
             index  index.html index.htm;
             try_files \$uri \$uri/index.html \$uri.html =404;
