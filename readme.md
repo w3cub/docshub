@@ -2,7 +2,7 @@
  * @Author: Terry Cai
  * @Date: 2020-11-20 23:54:23
  * @LastEditors: Terry Cai
- * @LastEditTime: 2022-01-15 20:47:44
+ * @LastEditTime: 2022-01-24 22:57:51
  * @Description: Do not edit
 -->
 # Docshub
@@ -93,6 +93,20 @@ rake multi_gen_deploy # project release
 rake sitemap  # generate sitemap
 rake push
 ```
+
+
+## Deploy New Server
+
+```sh
+
+# nginx
+
+wget https://raw.githubusercontent.com/w3cub/docshub/master/deploy/nginx.sh -O nginx.sh \
+&& mkdir -p /opt/deploy && cd /opt/deploy  \
+&& wget https://raw.githubusercontent.com/w3cub/docshub/master/deploy/gsync.sh -O sync.sh
+
+```
+
 
 
 ## License
