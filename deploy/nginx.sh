@@ -102,6 +102,8 @@ cd lua-resty-lrucache-${LUA_RESTY_LRU_VERSION}
 sed -i "/PREFIX ?=/i LUA_VERSION := 5.1" Makefile
 make && make install
 
+ln -s /usr/local/lib/lua/ /usr/local/share/
+
 
 
 cd $WORKDIR
