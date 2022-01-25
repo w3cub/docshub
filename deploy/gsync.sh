@@ -35,14 +35,14 @@ if [ -d $WORKDIR/www/.git ]; then
 fi
 
 # not exist the www directory
-if [ ! -d $WORKDIR/www]; then
+if [ ! -d $WORKDIR/www ]; then
     git clone --depth 1 -b gh-pages --single-branch $WWW_SOURCE.git www
 fi
 
 cd $WORKDIR
 
 # exist the www directory
-if [ -d $WORKDIR/www && ! -d $WORKDIR/www/.git ]; then
+if [ -d $WORKDIR/www ] && [ ! -d $WORKDIR/www/.git ]; then
 
     wget $WWW_SOURCE/tarball/gh-pages -O www.tar.gz
     
