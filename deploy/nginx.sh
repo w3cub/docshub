@@ -31,6 +31,7 @@ HTTP_ONLY=true
 
 if [ "$OS_FLAVOR" = "$centos" ] && [ "$VERSION" -eq 7 ]; then
 	echo "::Installing Dependacy for CentOS 7::"
+    yum check-update
 	yum groupinstall "Development Tools" -y
     yum install pcre pcre-devel zlib zlib-devel openssl openssl-devel -y
     yum install git wget -y
@@ -38,6 +39,7 @@ if [ "$OS_FLAVOR" = "$centos" ] && [ "$VERSION" -eq 7 ]; then
 
 elif [ "$OS_FLAVOR" = "$ubuntu" ] && [ "${VERSION%%.*}" -ge 15 ]; then
     echo " Installing Dependacy for Ubuntu $VERSION"
+    apt update
     apt-get install build-essential -y # for gcc
     apt-get install libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev -y
     apt-get install git wget -y
