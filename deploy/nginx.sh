@@ -144,6 +144,7 @@ export LUAJIT_INC=/usr/local/include/luajit-2.1
 ./configure \
 --with-ld-opt="-Wl,-rpath,$LUAJIT_LIB" \
 --prefix=$NGINX_PREFIX \
+--sbin-path=/usr/bin/nginx \
 --conf-path=/etc/nginx/nginx.conf \
 --error-log-path=/var/log/nginx/error.log \
 --http-log-path=/var/log/nginx/access.log \
@@ -161,6 +162,8 @@ export LUAJIT_INC=/usr/local/include/luajit-2.1
 make -j2 && make install
 
 echo "::Check the configuration file exists or not::"
+
+# ln -s /usr/local/nginx/sbin/nginx /usr/bin/nginx
 
 ls -lsrt /usr/bin/nginx || exit
 
