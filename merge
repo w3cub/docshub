@@ -1,5 +1,0 @@
-#!/bin/bash
-
-cd devdocs
-git pull devdocs master
-git push origin master

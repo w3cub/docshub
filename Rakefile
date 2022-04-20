@@ -298,6 +298,16 @@ def copy_credits(path, regex, target)
   IO.write(target + "credits.json", data)
 end
 
+
+def sortFile(name)
+  lines = IO.readlines(name)
+  openfile = File.open(name, 'w')
+  lines.sort!.each do |item|
+    openfile.puts item
+  end
+  openfile.close
+end
+
 desc "genonly docs html"
 task :genonly do |t, args|
   queue = Array.new
@@ -379,13 +389,14 @@ task :generate_html, :slug do |t, args|
   # threads.each{|t| t.join}
 end
 
+desc "sort the generated genonly file"
+task :sortgenonly do |t, args|
+  sortFile('.genonly')
+end
+
+desc "sort the generated history file"
 task :sorthistory do |t, args|
-  historys = IO.readlines('.history')
-  historyFile = File.open('.history', 'w')
-  historys.sort!.each do |item|
-    historyFile.puts item
-  end
-  historyFile.close
+  sortFile('.history')
 end
 
 desc "Deprecated, try to use website task. Copy docs html to website, if debug param is set, only copy a part of docs"
