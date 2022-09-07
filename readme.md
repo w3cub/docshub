@@ -107,6 +107,17 @@ wget https://raw.githubusercontent.com/w3cub/docshub/master/deploy/nginx.sh -O n
 
 ```
 
+### download file to nginx workplace
+
+```sh
+
+# download file to /var/www/html
+
+wget https://raw.githubusercontent.com/w3cub/docshub/master/deploy/sync.sh -O sync.sh && chmod +x sync.sh && WORKDIR=/var/www WWWDIR=html ./sync.sh
+
+```
+
+
 
 
 ## License

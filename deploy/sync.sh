@@ -3,8 +3,21 @@
  # Synchronized with github pages
 ### 
 
-WORKDIR=/opt
-WWW_SOURCE=https://github.com/w3cub/w3cub-release-202011
+if [ ! -z $WWW_SOURCE ]; then
+   WWW_SOURCE=https://github.com/w3cub/w3cub-release-202011
+fi
+
+if [ ! -z $WORKDIR ]; then
+    WORKDIR=/opt
+fi
+if [ ! -d $WORKDIR ]; then
+    mkdir -p $WORKDIR
+fi
+
+# define www dirname
+if [ ! -z $WWWDIR ]; then
+    WWWDIR=www
+fi
 
 
 
@@ -37,11 +50,11 @@ fi
 # long time to unzip
 tar -zxf www.tar.gz -C wwwtmp --strip-components=1
 
-if [ -d $WORKDIR/www ]; then
-   mv www www_backup$(date +%Y%m%d%H%M%S)
+if [ -d $WORKDIR/$WWWDIR ]; then
+   mv $WWWDIR $($WWWDIR)_backup$(date +%Y%m%d%H%M%S)
 fi
 
-mv wwwtmp www
+mv wwwtmp $WWWDIR
 
 
 echo "::Job complete, remove lock file::"
