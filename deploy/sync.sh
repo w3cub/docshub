@@ -51,7 +51,7 @@ fi
 tar -zxf www.tar.gz -C wwwtmp --strip-components=1
 
 if [ -d $WORKDIR/$WWWDIR ]; then
-   mv $WWWDIR $($WWWDIR)_backup$(date +%Y%m%d%H%M%S)
+   mv $WWWDIR ${WWWDIR}_backup$(date +%Y%m%d%H%M%S)
 fi
 
 mv wwwtmp $WWWDIR
