@@ -23,3 +23,23 @@ echo "deb http://openresty.org/package/ubuntu $(lsb_release -sc) main" \
 apt-get update
 
 apt-get -y install openresty
+
+PATH=/usr/local/openresty/nginx/sbin:$PATH
+export PATH
+
+
+
+mkdir -p /etc/systemd/system/openresty.service.d
+
+cat > /etc/systemd/system/openresty.service.d/override.conf <<EOT
+[Service]
+ExecStartPost=/bin/sleep 0.1
+EOT
+
+systemctl daemon-reload
+systemctl restart openresty
+
+
+systemctl status openresty
+
+
