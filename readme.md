@@ -111,9 +111,15 @@ wget https://raw.githubusercontent.com/w3cub/docshub/master/deploy/nginx.sh -O n
 
 ```sh
 
-# download file to /var/www/html
+# download file 
 
-wget https://raw.githubusercontent.com/w3cub/docshub/master/deploy/sync.sh -O sync.sh && chmod +x sync.sh && WORKDIR=/var/www WWWDIR=html ./sync.sh
+wget https://raw.githubusercontent.com/w3cub/docshub/master/deploy/gsync.sh -O sync.sh && chmod +x sync.sh
+
+
+
+# download openresty conf
+
+wget https://raw.githubusercontent.com/w3cub/docshub/master/deploy/conf.sh -O conf.sh && chmod +x conf.sh
 
 ```
 
