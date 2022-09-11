@@ -1,7 +1,6 @@
 DOMAIN=docs.w3cub.com
 
-cat >/etc/nginx/nginx.conf << EOF
-user www-data;
+cat >/usr/local/etc/openresty/nginx/conf/nginx.conf << EOF
 worker_processes  auto;
 events {
     worker_connections  1024;
@@ -52,3 +51,9 @@ http {
     }
 }
 EOF
+
+# ipv4
+echo "127.0.0.1 $DOMAIN" >> /etc/hosts
+
+# ipv6
+echo "::1 $DOMAIN" >> /etc/hosts
