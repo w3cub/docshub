@@ -24,3 +24,6 @@ wget https://raw.githubusercontent.com/w3cub/docshub/master/deploy/network.sh -O
 wget https://raw.githubusercontent.com/w3cub/docshub/master/deploy/conf.sh -O conf.sh && chmod +x conf.sh
 
 ./conf.sh
+
+
+systemctl reload openresty

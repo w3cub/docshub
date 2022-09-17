@@ -1,6 +1,7 @@
 DOMAIN=docs.w3cub.com
 
 cat >/usr/local/openresty/nginx/conf/nginx.conf << EOF
+user root;
 worker_processes  auto;
 events {
     worker_connections  1024;
