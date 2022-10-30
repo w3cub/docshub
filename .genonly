@@ -1,4 +1,5 @@
 angular
+astro
 angularjs~1.8
 angular~10
 angular~11
@@ -61,6 +62,7 @@ erlang~21
 esbuild
 eslint
 express
+fastapi
 falcon~2.0
 fish~3.1
 flask~0.12
@@ -170,6 +172,7 @@ php
 phpunit~6
 point_cloud_library
 pony
+postgresql~15
 postgresql~13
 prettier
 pug
