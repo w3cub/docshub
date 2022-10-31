@@ -385,7 +385,7 @@ task :generate_html, :slug do |t, args|
       generate_html(doc, docs_path + doc + '/', docs_generate_target+ doc + '/')
     end
   end
-
+  sortFile('.genlist')
   # 2.times do
   #   threads<<Thread.new do
 
