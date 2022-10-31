@@ -400,6 +400,21 @@ task :sortgenonly do |t, args|
 end
 
 
+desc "puts download genonly documentation file command"
+task :downloadgenonly do |t, args|
+  lines = IO.readlines('.genonly')
+  lastcmd =  "thor docs:download #{lines.uniq.sort!.map!{ |item| item.strip }.join(' ')}" 
+  puts lastcmd
+  # puts '-' * 80
+  # sh "cd #{devdocs_path} && #{lastcmd}"
+  # cd "#{devdocs_path}" do 
+  #   Bundler.with_clean_env {
+  #     system "bundle exec " + lastcmd
+  #   }
+  # end
+end
+
+
 desc "sort the generated genlist file"
 task :sortgenlist do |t, args|
   sortFile('.genlist')
