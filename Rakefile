@@ -302,7 +302,7 @@ end
 def sortFile(name)
   lines = IO.readlines(name)
   openfile = File.open(name, 'w')
-  lines.sort!.each do |item|
+  lines.uniq.sort!.each do |item|
     openfile.puts item
   end
   openfile.close
@@ -375,12 +375,17 @@ task :generate_html, :slug do |t, args|
         File.open('.history', 'a') do |file|
           file.puts doc      
         end
+        # copy to genlist
+        File.open('.genlist', 'a') do |file|
+          file.puts doc      
+        end
       end
     else
       del_target(docs_generate_target + doc + '/')
       generate_html(doc, docs_path + doc + '/', docs_generate_target+ doc + '/')
     end
   end
+
   # 2.times do
   #   threads<<Thread.new do
 
@@ -392,6 +397,12 @@ end
 desc "sort the generated genonly file"
 task :sortgenonly do |t, args|
   sortFile('.genonly')
+end
+
+
+desc "sort the generated genlist file"
+task :sortgenlist do |t, args|
+  sortFile('.genlist')
 end
 
 desc "sort the generated history file"
@@ -424,11 +435,11 @@ desc "Copy docs.json to website"
 task :copy_index_json do
   # use meta.json is better
   filename = "docs.json"
-  genonly = IO.read('.genonly')
-  genonly = genonly.split("\n")
+  genlist = IO.read('.genlist')
+  genlist = genlist.split("\n")
   data = []
   del_target(json_target_path + filename)
-  genonly.each do |slug|
+  genlist.each do |slug|
     meta_path = docs_path + slug + '/meta.json'
     next unless File.exist?(meta_path)
     data << JSON.parse(IO.read(meta_path))
