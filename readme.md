@@ -73,6 +73,7 @@ rake test_preview
 
 # deploy test
 bundle install
+rake copy_json # generate all json files
 rake generate_html # generate jekyll base(sand) document
 rake copy_icons # copy docslogo icons to website
 rake copy_json # generate all json files

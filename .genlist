@@ -1,5 +1,4 @@
 angular
-astro
 angularjs~1.8
 angular~10
 angular~11
@@ -10,7 +9,9 @@ ansible~2.11
 ansible~2.9
 apache_http_server
 apache_pig~0.17
+astro
 async
+axios
 babel~6
 babel~7
 backbone
@@ -24,6 +25,7 @@ bower
 browser_support_tables
 c
 cakephp~4.1
+cakephp~4.4
 chai
 chef~12
 clojure~1.10
@@ -41,6 +43,7 @@ cypress
 d
 d3~5
 dart~2
+date_fns
 deno
 django_rest_framework
 django~1.11
@@ -48,11 +51,13 @@ django~2.2
 django~3.1
 django~3.2
 django~4.0
+docker
 docker~19
 dojo
 dom
 dom_events
 drupal~8
+eigen3
 electron
 elisp
 elixir~1.11
@@ -62,8 +67,8 @@ erlang~21
 esbuild
 eslint
 express
-fastapi
 falcon~2.0
+fastapi
 fish~3.1
 flask~0.12
 flask~1.1
@@ -72,6 +77,8 @@ gcc~10
 gcc~10_cpp
 gcc~11
 gcc~11_cpp
+gcc~12
+gcc~12_cpp
 git
 gnu_cobol
 gnu_fortran~10
@@ -124,6 +131,7 @@ julia~1.2
 knockout
 koa
 kotlin
+kubectl
 kubernetes
 laravel~5.8
 laravel~8
@@ -151,6 +159,7 @@ mongoose
 nginx
 nginx_lua_module
 nim
+nix
 node
 node~12_lts
 node~14_lts
@@ -172,8 +181,8 @@ php
 phpunit~6
 point_cloud_library
 pony
-postgresql~15
 postgresql~13
+postgresql~15
 prettier
 pug
 puppeteer
@@ -200,6 +209,7 @@ relay
 relay~10
 relay~8
 relay~9
+requests
 requirejs
 rethinkdb~java
 rethinkdb~javascript
@@ -210,6 +220,7 @@ ruby~3
 rust
 rxjs
 saltstack
+sanctuary
 sass
 scala~2.12_library
 scala~2.12_reflection
@@ -218,20 +229,25 @@ scala~2.13_reflection
 scikit_image
 scikit_learn
 sequelize
+sequelize~6
 sinon~7
 socketio
 spring_boot
 sqlite
 statsmodels
+svelte
 svg
 symfony~4.1
+tailwindcss
 tcl_tk
 tensorflow_cpp~1.15
 tensorflow_cpp~2.3
 tensorflow_cpp~2.4
+tensorflow_cpp~2.9
 tensorflow~1.15
 tensorflow~2.3
 tensorflow~2.4
+tensorflow~2.9
 tensorflow~guide
 tensorflow~python
 terraform
@@ -243,9 +259,11 @@ underscore
 vagrant
 varnish
 vite
+vitest
 vue_router
 vue_router~4
 vuex
+vuex~4
 vue~1
 vue~2
 vue~3

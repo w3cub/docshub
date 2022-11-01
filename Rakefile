@@ -92,6 +92,9 @@ def get_title(doc, slug, path, view_path, slugtitle)
       pagetitle = get_link_title(slug, view_path + '.html')
       if pagetitle.blank?
         pagetitle = get_link_title(slug, view_path + '/index')
+        if pagetitle.blank?
+          pagetitle = view_path.split(/\//).join(' ').titlecase
+        end
       end
     end
   end
@@ -109,8 +112,9 @@ def get_title(doc, slug, path, view_path, slugtitle)
         end
       rescue => exception
         scrantitle = pagetitle
+      ensure
+        title = scrantitle
       end
-      title = scrantitle
     end
   else
     title = ""
@@ -403,15 +407,17 @@ end
 desc "puts download genonly documentation file command"
 task :downloadgenonly do |t, args|
   lines = IO.readlines('.genonly')
-  lastcmd =  "thor docs:download #{lines.uniq.sort!.map!{ |item| item.strip }.join(' ')}" 
+  lastcmd =  "thor docs:download #{lines.uniq.sort!.map!{ |item| item.strip }.join(' ').gsub!('~','@')}" 
   puts lastcmd
-  # puts '-' * 80
-  # sh "cd #{devdocs_path} && #{lastcmd}"
-  # cd "#{devdocs_path}" do 
-  #   Bundler.with_clean_env {
-  #     system "bundle exec " + lastcmd
-  #   }
-  # end
+  puts '-' * 80
+
+  puts lines.uniq.sort!.map!{ |item| "'" + item.strip + "'" }.join(',')
+
+  Dir.chdir(devdocs_path) do
+    Bundler.with_unbundled_env {
+      system "bundle exec #{lastcmd}"
+    }
+  end
 end
 
 
@@ -452,6 +458,9 @@ task :copy_index_json do
   filename = "docs.json"
   genlist = IO.read('.genlist')
   genlist = genlist.split("\n")
+  genonly = IO.read('.genonly')
+  genonly = genonly.split("\n")
+  genlist = genlist.concat(genonly).map!{ |item| item.strip }.uniq
   data = []
   del_target(json_target_path + filename)
   genlist.each do |slug|
@@ -526,7 +535,7 @@ end
 
 desc "generate html test"
 task :generate_test  do # => [:copy_json_js]
-  Rake::Task[:generate_html].invoke("bootstrap@5 ocaml ruby@3 less@4 node node@14_lts varnish php puppeteer redis")
+  Rake::Task[:generate_html].invoke("http")
 end
 
 
@@ -544,8 +553,8 @@ end
 
 desc "travis ci init devdocs"
 task :devdocsci do
-  cd "#{devdocs_path}" do 
-    Bundler.with_clean_env {
+  Dir.chdir(devdocs_path) do 
+    Bundler.with_unbundled_env {
       system "bundle exec thor docs:download --default"
     }
   end

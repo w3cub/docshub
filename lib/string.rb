@@ -40,5 +40,10 @@ class String
         input
       end
     end
-
+    # covert string to title case 
+    def titlecase
+      input = self
+      input.gsub(/\w+/) { |word| word.capitalize }
+    end
+    
 end
