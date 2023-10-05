@@ -32,8 +32,11 @@ json_target_path = "#{website_path}/source/_data/"
 json_js_target_path = "#{website_path}/source/json/"
 
 # css sprite icons
-icons_source_path = "#{icons_path}/dist/sprite/"
+icons_source_path = "#{devdocs_path}/dist/sprite/"
 icons_target_path = "#{website_path}/source/assets/images/logo/"
+
+sidebaricons_source_path = "#{devdocs_path}/assets/images/sprites/"
+sidebaricons_target_path = "#{website_path}/source/assets/images/sprites/"
 
 
 credits_path = "#{devdocs_path}/assets/javascripts/templates/pages/about_tmpl.coffee"
@@ -295,14 +298,6 @@ def json_handle(target)
 end
 
 
-def copy_credits(path, regex, target)
-  file = IO.read(path)
-  credits_data = regex.match(file)[1]
-  data = JSON.parse(eval(credits_data.to_s).to_json)
-  IO.write(target + "credits.json", data)
-end
-
-
 def sortFile(name)
   lines = IO.readlines(name)
   openfile = File.open(name, 'w')
@@ -469,18 +464,33 @@ task :copy_index_json do
     data << JSON.parse(IO.read(meta_path))
   end
 
-  IO.write(json_target_path + filename, data.to_json)
+
+  # devdocs json 
+  devdocs_json = docs_path + filename
+
+  docs_json = JSON.parse(IO.read(devdocs_json))
+  # puts docs_json
+  
+
+  IO.write(json_target_path + filename, JSON.pretty_generate(data))
   puts "Copy docs.json Done"
-end
 
+  # mixin docs.json attribution to item
+  data.each do |item|
+    item.merge!(docs_json.select{ |doc| doc["name"] == item["name"] && doc["release"] == item["release"]}[0] || {})
+  end
 
-desc "Copy docs credits"
-task :copy_credits do 
-  filename = "credits.json"
-  del_target(json_target_path + filename)
-  copy_credits(credits_path, credits_regex, json_target_path)
+  # data uniqby item name
+  data.uniq! { |item| item["name"] }.sort_by! { |item | item["name"] }.filter! { 
+    # attribute is not empty
+    |item| !item["attribution"].nil? && !item["attribution"].empty?
+  }
+  credits_path = json_target_path + "credits.json"
+  # write docs to credits.json
+  IO.write(credits_path, JSON.pretty_generate(data))
   puts "Copy docs credits Done"
 end
+
 
 
 desc "Copy all docs json and changed to javascript `menuJson` Object"
@@ -492,7 +502,7 @@ end
 
 
 desc "Copy JSON file include subTask [copy_json_js, copy_index_json]"
-task :copy_json => [:copy_index_json, :copy_json_js, :copy_credits] do
+task :copy_json => [:copy_index_json, :copy_json_js] do
   puts "Copy JSON Done"
 end
 
@@ -500,7 +510,12 @@ desc "Copy icons file to website"
 task :copy_icons do
   FileUtils.rm_rf(Dir.glob(icons_target_path+ "*"))
   FileUtils.cp_r(icons_source_path + ".", icons_target_path)
-  puts "Copy all index-page icons Done"
+  puts "Sync all index-page icons Done"
+
+  # copy sidebar icons
+  FileUtils.rm_rf(Dir.glob(sidebaricons_target_path+ "*"))
+  FileUtils.cp_r(sidebaricons_source_path + ".", sidebaricons_target_path)
+  puts "Sync sidebar icons Done"
 end
 
 
@@ -535,13 +550,13 @@ end
 
 desc "generate html test"
 task :generate_test  do # => [:copy_json_js]
-  Rake::Task[:generate_html].invoke("http")
+  Rake::Task[:generate_html].invoke("html")
 end
 
 
 desc "copy html static files for test"
 task :copy_test do
-  Rake::Task[:copy_html].invoke("varnish")
+  Rake::Task[:copy_html].invoke("html")
 end
 
 desc "default"

@@ -1,5 +1,5 @@
 source "https://rubygems.org"
-ruby '~> 2.7.3'
+ruby '3.2.2'
 group :development do
   gem 'rake', '~> 12.0'
   gem 'nokogiri'

@@ -1,10 +1,4 @@
-<!--
- * @Author: Terry Cai
- * @Date: 2020-11-20 23:54:23
- * @LastEditors: Terry Cai
- * @LastEditTime: 2022-01-24 22:57:51
- * @Description: Do not edit
--->
+
 # Docshub
 W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
 
@@ -52,7 +46,7 @@ cd ..
 cd ./docslogo
 sudo apt-get install imagemagick graphicsmagick
 npm install -d
-gulp beauty
+gulp sprite
 
 
 cd ..
@@ -89,6 +83,7 @@ cd ./website
 rake badlink # output badlink url, you need to add in the `_config.yml` file `include` options 
 rake erb
 rake setup_gen  # [option] setup generate queue
+rake setup_genonly  # [option] setup generate only queue
 rake gitinit # [option]
 rake multi_gen_deploy # project release
 rake sitemap  # generate sitemap

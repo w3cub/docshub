@@ -73,6 +73,7 @@ fish~3.1
 flask~0.12
 flask~1.1
 flow
+fluture
 gcc~10
 gcc~10_cpp
 gcc~11
@@ -169,6 +170,9 @@ numpy~1.17
 ocaml
 octave
 openjdk~11
+openjdk~19
+openjdk~8_gui
+openjdk~8_web
 opentsdb
 padrino
 pandas~0.25
@@ -193,6 +197,7 @@ pytorch
 q
 qt
 qt~5.15
+qunit
 r
 rails~6.0
 rails~7.0
@@ -262,12 +267,14 @@ vite
 vitest
 vue_router
 vue_router~4
+vueuse
 vuex
 vuex~4
 vue~1
 vue~2
 vue~3
 vulkan
+wagtail
 web_extensions
 webpack
 webpack~1
