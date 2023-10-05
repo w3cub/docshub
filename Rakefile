@@ -32,7 +32,7 @@ json_target_path = "#{website_path}/source/_data/"
 json_js_target_path = "#{website_path}/source/json/"
 
 # css sprite icons
-icons_source_path = "#{devdocs_path}/dist/sprite/"
+icons_source_path = "#{icons_path}/dist/sprite/"
 icons_target_path = "#{website_path}/source/assets/images/logo/"
 
 sidebaricons_source_path = "#{devdocs_path}/assets/images/sprites/"
