@@ -12,7 +12,26 @@ W3cubDocs API Documentation - [W3cubDocs](http://docs.w3cub.com/)
 └── [website](https://github.com/w3cub/docsgen/) # Jekyll project , which we need to convert static pages	
 ```  
 
- 
+## Configure File
+
+
+.genlist
+
+You've added the documention list. Additionally, the `index page` will be generated based on this file.
+Related task: `copy_json`, `sortgenlist`
+
+
+.genonly
+
+At the current time, you only need to generate the documentions list.
+Related task: `copy_json`, `sortgenonly`, `generate_html`. if you need to regenerate the documention list, you need to clean up the `.history` file first.
+
+
+.history 
+
+The history file is used to record the documentions list that has been generated. 
+Related task: `generate_html`.
+
 
 
 
@@ -29,8 +48,7 @@ export http_proxy=http://127.0.0.1:1080 && export https_proxy=$http_proxy && exp
 
 \curl -sSL https://get.rvm.io | bash -s stable
 
-rvm install "ruby-2.6.5"
-
+rvm install 3.3.0
 git clone --recursive git@github.com:icai/docshub.git
 cd docshub 
 
@@ -67,8 +85,15 @@ rake test_preview
 
 # deploy test
 bundle install
+
+#  change .genlist and .genonly file first
 rake copy_json # generate all json files
+
+#  example: rake generate_html openjdk~21
 rake generate_html # generate jekyll base(sand) document
+
+# update docslogo project first and devdocs project run thor sprites:generate
+
 rake copy_icons # copy docslogo icons to website
 rake copy_json # generate all json files
 rake copy_allhtml # generate all file to website

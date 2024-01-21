@@ -16,6 +16,7 @@ babel~6
 babel~7
 backbone
 bash
+bazel~7.0
 bluebird
 bootstrap~3
 bootstrap~4
@@ -92,7 +93,9 @@ groovy~3.0
 grunt
 gtk~3.24
 gtk~4.0
+hammerspoon
 handlebars
+hapi
 haproxy~2.3
 haproxy~2.4
 haskell~7
@@ -123,6 +126,7 @@ jekyll~3
 jekyll~4
 jest
 jinja~2.11
+joi
 jq
 jquery
 jquerymobile
@@ -167,12 +171,11 @@ node~14_lts
 nokogiri
 npm
 numpy~1.17
+nushell
 ocaml
 octave
 openjdk~11
-openjdk~19
-openjdk~8_gui
-openjdk~8_web
+openjdk~21
 opentsdb
 padrino
 pandas~0.25
@@ -226,6 +229,8 @@ rust
 rxjs
 saltstack
 sanctuary
+sanctuary_def
+sanctuary_type_classes
 sass
 scala~2.12_library
 scala~2.12_reflection

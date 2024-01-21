@@ -254,13 +254,23 @@ def copy_html(source_path, target_path, names=true)
 end
 
 def copy_json(source_path, target_path, handle_file=nil)
-    Dir.glob(source_path + "*/index.json") do |source|
-      target = source.sub(/^#{source_path}/, target_path)
-      target = target.sub(/(\w+)\/index/, '\1')
-      FileUtils.mkdir_p(File.dirname(target))
-      FileUtils.copy(source, target)
-      handle_file && handle_file.call(target)
-    end
+
+  genlist = IO.read('.genlist')
+  genlist = genlist.split("\n")
+  genonly = IO.read('.genonly')
+  genonly = genonly.split("\n")
+  genlist = genlist.concat(genonly).map!{ |item| item.strip }.uniq
+
+  puts source_path, target_path 
+  Dir.glob(source_path + "*/index.json") do |source|
+    target = source.sub(/^#{source_path}/, target_path)
+    target = target.sub(/(\w+)\/index/, '\1')
+    name = /([\w~.]+)\/index\.json/.match(source)[1]
+    next unless genlist.include?(name)
+    FileUtils.mkdir_p(File.dirname(target))
+    FileUtils.copy(source, target)
+    handle_file && handle_file.call(target)
+  end
 end
 
 def get_child_path(path)
@@ -471,7 +481,9 @@ task :copy_index_json do
   docs_json = JSON.parse(IO.read(devdocs_json))
   # puts docs_json
   
+  FileUtils.mkdir_p(json_target_path) unless File.directory?(json_target_path)
 
+  # write docs.json
   IO.write(json_target_path + filename, JSON.pretty_generate(data))
   puts "Copy docs.json Done"
 
@@ -508,6 +520,7 @@ end
 
 desc "Copy icons file to website"
 task :copy_icons do
+  # docslogo
   FileUtils.rm_rf(Dir.glob(icons_target_path+ "*"))
   FileUtils.cp_r(icons_source_path + ".", icons_target_path)
   puts "Sync all index-page icons Done"
