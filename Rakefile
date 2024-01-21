@@ -261,7 +261,6 @@ def copy_json(source_path, target_path, handle_file=nil)
   genonly = genonly.split("\n")
   genlist = genlist.concat(genonly).map!{ |item| item.strip }.uniq
 
-  puts source_path, target_path 
   Dir.glob(source_path + "*/index.json") do |source|
     target = source.sub(/^#{source_path}/, target_path)
     target = target.sub(/(\w+)\/index/, '\1')
