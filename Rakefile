@@ -490,9 +490,11 @@ task :copy_index_json do
   data.each do |item|
     item.merge!(docs_json.select{ |doc| doc["name"] == item["name"] && doc["release"] == item["release"]}[0] || {})
   end
-
+  # log data
   # data uniqby item name
-  data.uniq! { |item| item["name"] }.sort_by! { |item | item["name"] }.filter! { 
+  data.uniq! { |item| item["name"] }
+  data.sort_by! { |item| item["name"] }
+  data.filter! { 
     # attribute is not empty
     |item| !item["attribution"].nil? && !item["attribution"].empty?
   }

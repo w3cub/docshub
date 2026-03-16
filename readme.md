@@ -48,8 +48,8 @@ export http_proxy=http://127.0.0.1:1080 && export https_proxy=$http_proxy && exp
 
 \curl -sSL https://get.rvm.io | bash -s stable
 
-rvm install 3.3.0
-git clone --recursive git@github.com:icai/docshub.git
+rvm install 4.0.0
+git clone --recursive https://github.com/w3cub/docshub.git
 cd docshub 
 
 cd ./devdocs 
