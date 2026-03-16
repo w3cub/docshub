@@ -1,7 +1,7 @@
 angular
 angularjs~1.8
 ansible
-apache
+apache_http_server
 apache_pig~0.17
 astro
 async
@@ -219,7 +219,6 @@ socketio~4
 spring_boot
 sqlite
 statsmodels
-support_tables
 svelte
 svg
 symfony~4.1
