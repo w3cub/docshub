@@ -1,18 +1,19 @@
 [submodule "devdocs"]
 	path = devdocs
-	url=git@github.com:w3cub/devdocs.git
+	url = https://github.com/w3cub/devdocs.git
 	branch = master
 
 [submodule "website"]
 	path = website
-	url=git@github.com:w3cub/docsgen.git
+	url = https://github.com/w3cub/docsgen.git
 	branch = master
+
 [submodule "docslogo"]
 	path = docslogo
-	url=git@github.com:w3cub/docslogo.git
+	url = https://github.com/w3cub/docslogo.git
 	branch = master
 
 [submodule "cheatsheets"]
 	path = cheatsheets
-	url = git@github.com:w3cub/cheatsheets.git
+	url = https://github.com/w3cub/cheatsheets.git
 	branch = master
