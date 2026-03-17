@@ -48,7 +48,8 @@ export http_proxy=http://127.0.0.1:1080 && export https_proxy=$http_proxy && exp
 
 \curl -sSL https://get.rvm.io | bash -s stable
 
-rvm install 4.0.0
+rvm install ruby-4.0.0
+rvm alias create 4.0.0 ruby-4.0.0
 git clone --recursive https://github.com/w3cub/docshub.git
 cd docshub 
 
@@ -89,7 +90,7 @@ bundle install
 #  change .genlist and .genonly file first
 rake copy_json # generate all json files
 
-#  example: rake generate_html openjdk~21
+#  example: rake generate_html[openjdk~21]
 rake generate_html # generate jekyll base(sand) document
 
 # update docslogo project first and devdocs project run thor sprites:generate
